@@ -18,7 +18,11 @@ from tornado import gen
 from tornado.websocket import websocket_connect
 
 from only_once import OnlyOnce, OnlyOnceException
-from handler import handler
+from handler import Handler
+from kodi import KodiInterface
+from library_cache import LibraryCache
+from custom_monitor import CustomMonitor
+from custom_player import CustomPlayer
 
 logging_config = dict(
     version = 1,
@@ -40,13 +44,16 @@ logging_config = dict(
 dictConfig(logging_config)
 
 class Client(object):
-    def __init__(self, url, timeout):
+    def __init__(self, url, kodi, handler):
         self.url = url
-        self.timeout = timeout
         self.ioloop = IOLoop.current()
         self.ws = None
         self.should_stop = False
-        self.periodic = PeriodicCallback(self.keep_alive, 20000)
+
+        self.kodi = kodi
+        self.handler = handler
+
+        self.periodic = PeriodicCallback(self.periodic_callback, 20000)
 
     def start(self):
         self.connect()
@@ -92,22 +99,24 @@ class Client(object):
                 print(message)
                 data = message['data']
 
-                responseData = handler(data)
+                responseData = handler.handler(data)
             except Exception as e:
                 print('handler failed:', e)
                 responseData = { 'status': 'error', 'error': 'Unknown error' }
 
             self.ws.write_message(json.dumps({ 'correlationId': message['correlationId'], 'data': responseData }))
 
-    def keep_alive(self):
+    def periodic_callback(self):
         if self.ws is None:
             self.connect()
         else:
             self.ws.write_message(json.dumps({ 'ping': 'pong' }))
 
+        self.kodi.update_cache()
+
 class ClientThread(threading.Thread):
-    def __init__(self):
-        self.client = Client(KODI_CONNECT_URL, 5)
+    def __init__(self, client):
+        self.client = client
         threading.Thread.__init__(self)
         print(self)
 
@@ -129,26 +138,9 @@ if __name__ == '__main__':
         xbmc.log('Kodi connect tunnel already running, exiting', level=xbmc.LOGNOTICE)
         sys.exit(0)
 
-    monitor = xbmc.Monitor()
+    library_cache = LibraryCache()
+    kodi = KodiInterface(library_cache)
+    handler = Handler(kodi)
 
-    client_thread = ClientThread()
-    client_thread.start()
-
-    try:
-        while not monitor.abortRequested():
-            # Sleep/wait for abort for 3 seconds
-            if monitor.waitForAbort(3):
-                # Abort was requested while waiting. We should exit
-                break
-    except KeyboardInterrupt:
-        print('Interrupted')
-
-    print('Stopping')
-    client_thread.stop()
-    print('Joining')
-    client_thread.join()
-
-# if __name__ == '__main__':
-    # search_and_play_handler(['lord of the rings fellowship of the ring', 'lord of the rings', 'lord of the snow'])
-    # search_and_play_handler(['marvel guardians of the galaxy'])
-    # search_and_play_handler(['how i met your mother'])
+    monitor = CustomMonitor(kodi)
+    player = CustomPlayer(kodi)

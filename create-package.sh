@@ -1,12 +1,12 @@
 #!/bin/bash -xe
 
 root_dir="$(cd $(dirname $0) && pwd -P)"
-package_filepath="${root_dir}/script.kodiconnect-0.1.0.zip"
+package_filepath="${root_dir}/plugin.kodiconnect-0.1.0.zip"
 
 rm -fv "${package_filepath}"
 
 tmpdir="$(mktemp -d)"
-install_dir="${tmpdir}/script.kodiconnect"
+install_dir="${tmpdir}/plugin.kodiconnect"
 mkdir -p "${install_dir}"
 
 cp -r \

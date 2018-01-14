@@ -1,5 +1,10 @@
 version: '3'
 services:
+  kodi:
+    image: tkislan/kodi-simulator
+    ports:
+      - '8080:8080'
+      - '5900:5900'
   app:
     build:
       context: .
@@ -8,6 +13,9 @@ services:
     stdin_open: true
     tty: true
     environment:
-      PYTHONPATH: /home/python/app/mock
+      PYTHONPATH: /home/python/app/mock:/home/python/app/resources/lib
+      KODI_HOST: http://kodi:8080
     volumes:
       - .:/home/python/app
+    depends_on:
+      - kodi

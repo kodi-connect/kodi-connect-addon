@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7
+      - image: tkislan/kodi-simulator
+    environment:
+        KODI_HOST: http://localhost:8080
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: ./install-dependencies.sh
+
+      - run:
+          name: Run tests
+          command: ./run-unittests.sh
