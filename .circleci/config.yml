@@ -4,9 +4,8 @@ jobs:
     docker:
       - image: circleci/python:2.7
       - image: tkislan/kodi-simulator
-        name: kodi
     environment:
-        KODI_HOST: http://kodi:8080
+        KODI_HOST: http://localhost:8080
     working_directory: ~/app
     steps:
       - checkout
