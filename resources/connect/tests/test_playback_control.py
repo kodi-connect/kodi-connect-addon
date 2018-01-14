@@ -11,7 +11,7 @@ class TestPlaybackControl(unittest.TestCase):
         self.kodi.update_cache()
         self.player = CustomPlayer(self.kodi)
         self.kodi.find_and_play({
-            'titles': ['maze runner'],
+            'titles': ['Maze Runner'],
         })
 
     def test_pause(self):

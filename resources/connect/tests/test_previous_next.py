@@ -22,7 +22,7 @@ class TestPreviousNext(unittest.TestCase):
 
     def test_no_previous_item(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '1',
             'episode': '1',
         })
@@ -39,7 +39,7 @@ class TestPreviousNext(unittest.TestCase):
 
     def test_no_next_item(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '6',
             'episode': '24',
         })
@@ -56,7 +56,7 @@ class TestPreviousNext(unittest.TestCase):
 
     def test_previous_item(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '2',
             'episode': '2',
         })
@@ -72,7 +72,7 @@ class TestPreviousNext(unittest.TestCase):
 
     def test_previous_item_cross_season(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '2',
             'episode': '1',
         })
@@ -88,7 +88,7 @@ class TestPreviousNext(unittest.TestCase):
 
     def test_next_item(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '1',
             'episode': '1',
         })
@@ -104,7 +104,7 @@ class TestPreviousNext(unittest.TestCase):
 
     def test_next_item_cross_season(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '1',
             'episode': '22',
         })

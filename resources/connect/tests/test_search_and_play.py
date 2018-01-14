@@ -22,7 +22,7 @@ class TestSearchAndPlay(unittest.TestCase):
 
     def test_search_and_play_tvshow(self):
         self.kodi.find_and_play({
-            'titles': ['how i met your mother'],
+            'titles': ['How I Met Your Mother'],
             'season': '2',
             'episode': '1',
         })
@@ -36,7 +36,7 @@ class TestSearchAndPlay(unittest.TestCase):
 
     def test_search_and_play_movie_by_title(self):
         self.kodi.find_and_play({
-            'titles': ['maze runner'],
+            'titles': ['Maze Runner'],
         })
         current_item = self.player._get_current_item()
 
@@ -46,7 +46,7 @@ class TestSearchAndPlay(unittest.TestCase):
 
     def test_search_and_play_movie_by_actor(self):
         self.kodi.find_and_play({
-            'actors': ['jason statham'],
+            'actors': ['Jason Statham'],
         })
         current_item = self.player._get_current_item()
 
@@ -55,8 +55,8 @@ class TestSearchAndPlay(unittest.TestCase):
 
     def test_search_and_play_movie_by_title_and_actor(self):
         self.kodi.find_and_play({
-            'titles': ['furious'],
-            'actors': ['jason statham'],
+            'titles': ['Furious'],
+            'actors': ['Jason Statham'],
         })
         current_item = self.player._get_current_item()
 
