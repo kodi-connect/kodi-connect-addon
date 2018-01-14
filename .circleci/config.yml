@@ -5,15 +5,27 @@ jobs:
       - image: circleci/python:2.7
       - image: tkislan/kodi-simulator
     environment:
-        PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/mock:$CIRCLE_WORKING_DIRECTORY/resources/lib
-        KODI_HOST: http://localhost:8080
+        KODI_HOST: http://127.0.0.1:8080
+    working_directory: ~/app
     steps:
       - checkout
+
+      - run:
+          name: Set PYTHONPATH environment variable
+          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources/connect' >> $BASH_ENV
+
+      - run:
+          name: Export
+          command: export
 
       - run:
           name: Install dependencies
           command: ./install-dependencies.sh
 
       - run:
+          name: Wait for kodi simulator
+          command: ./wait-for-kodi-simulator.sh
+
+      - run:
           name: Run tests
-          command: ./run-unittests.sh
+          command: python -m unittest discover -s resources/connect/tests/
