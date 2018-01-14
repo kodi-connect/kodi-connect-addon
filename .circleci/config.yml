@@ -5,6 +5,7 @@ jobs:
       - image: circleci/python:2.7
       - image: tkislan/kodi-simulator
     environment:
+        PYTHONPATH: $HOME/mock:$HOME/resources/lib
         KODI_HOST: http://localhost:8080
     steps:
       - checkout
