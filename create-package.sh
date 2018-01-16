@@ -1,12 +1,13 @@
 #!/bin/bash -xe
 
 root_dir="$(cd $(dirname $0) && pwd -P)"
-package_filepath="${root_dir}/plugin.kodiconnect-0.1.0.zip"
+plugin_id="plugin.video.kodiconnect"
+package_filepath="${root_dir}/${plugin_id}-0.1.0.zip"
 
 rm -fv "${package_filepath}"
 
 tmpdir="$(mktemp -d)"
-install_dir="${tmpdir}/plugin.kodiconnect"
+install_dir="${tmpdir}/${plugin_id}"
 mkdir -p "${install_dir}"
 
 cp -r \

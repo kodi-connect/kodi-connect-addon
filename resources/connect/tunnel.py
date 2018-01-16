@@ -7,7 +7,7 @@ import xbmcaddon
 import logging
 from logging.config import dictConfig
 
-__settings__ = xbmcaddon.Addon(id='script.kodiconnect')
+__settings__ = xbmcaddon.Addon()
 
 KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
 BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__settings__.getAddonInfo('path'), 'resources', 'lib' ))
@@ -16,6 +16,7 @@ sys.path.append(BASE_RESOURCE_PATH)
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
 from tornado.websocket import websocket_connect
+from tornado.httpclient import HTTPRequest
 
 from only_once import OnlyOnce, OnlyOnceException
 from handler import Handler
@@ -23,6 +24,7 @@ from kodi import KodiInterface
 from library_cache import LibraryCache
 from custom_monitor import CustomMonitor
 from custom_player import CustomPlayer
+from utils import showNotification
 
 logging_config = dict(
     version = 1,
@@ -49,6 +51,7 @@ class Client(object):
         self.ioloop = IOLoop.current()
         self.ws = None
         self.should_stop = False
+        self.last_notification_message = None
 
         self.kodi = kodi
         self.handler = handler
@@ -67,6 +70,11 @@ class Client(object):
         self.periodic.stop()
         self.ioloop.stop()
 
+    def show_notification(self, message):
+        if self.last_notification_message != message:
+            self.last_notification_message = message
+            showNotification(message)
+
     @gen.coroutine
     def connect(self):
         username = __settings__.getSetting('username')
@@ -77,12 +85,17 @@ class Client(object):
 
         print('trying to connect')
         try:
-            self.ws = yield websocket_connect(self.url)
+            request = HTTPRequest(self.url, auth_username=username, auth_password=secret)
+
+            self.ws = yield websocket_connect(request)
         except Exception, e:
-            print('connection error')
+            print('connection error:', e)
+            self.ws = None
+            self.show_notification('Failed to connect')
         else:
             print('connected')
-            self.ws.write_message(json.dumps({ 'username': username, 'secret': secret }))
+            self.connected = True
+            self.show_notification('Connected')
             self.run()
 
     @gen.coroutine
@@ -92,6 +105,7 @@ class Client(object):
             if message_str is None:
                 print('connection closed')
                 self.ws = None
+                self.show_notification('Disconnected')
                 break
 
             try:
@@ -107,6 +121,7 @@ class Client(object):
             self.ws.write_message(json.dumps({ 'correlationId': message['correlationId'], 'data': responseData }))
 
     def periodic_callback(self):
+        print('periodic_callback')
         if self.ws is None:
             self.connect()
         else:
@@ -144,3 +159,24 @@ if __name__ == '__main__':
 
     monitor = CustomMonitor(kodi)
     player = CustomPlayer(kodi)
+
+    client = Client(KODI_CONNECT_URL, kodi, handler)
+    client_thread = ClientThread(client)
+    client_thread.start()
+
+    try:
+        while not monitor.abortRequested():
+            # Sleep/wait for abort for 3 seconds
+            if monitor.waitForAbort(3):
+                # Abort was requested while waiting. We should exit
+                break
+    except KeyboardInterrupt:
+        print('Interrupted')
+
+    print('Stopping Kodi Connect Tunnel')
+    client_thread.stop()
+    print('Joining Tunnel Thread')
+    client_thread.join()
+    print('Kodi Connect Exit')
+
+

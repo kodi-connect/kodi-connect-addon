@@ -2,10 +2,11 @@ import os
 import sys
 import xbmc
 import xbmcgui
+import xbmcplugin
 import xbmcaddon
 
-__settings__ = xbmcaddon.Addon(id='plugin.kodiconnect')
+addon = xbmcaddon.Addon()
 
-BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__settings__.getAddonInfo('path'), 'resources', 'lib'))
-sys.path.append(BASE_RESOURCE_PATH)
-
+item = xbmcgui.ListItem('Hello, World')
+xbmcplugin.addDirectoryItem(int(sys.argv[1]), '', item, isFolder=0)
+xbmcplugin.endOfDirectory(int(sys.argv[1]))

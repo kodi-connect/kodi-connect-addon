@@ -13,6 +13,7 @@ class LibraryCache(object):
     def set_library(self, movies, tvshows):
         self.movies = movies
         self.tvshows = tvshows
+        self.dirty = False
 
     def get_library(self):
         return self.movies, self.tvshows

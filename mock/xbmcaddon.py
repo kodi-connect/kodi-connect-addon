@@ -1,7 +1,7 @@
 import os
 
 class Addon(object):
-    def __init__(self, id):
+    def __init__(self, id='plugin.video.kodiconnect'):
         print('Creating Addon')
         self.id = id
 
