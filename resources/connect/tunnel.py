@@ -93,7 +93,7 @@ class Client(object):
             self.ws = None
             self.show_notification('Failed to connect')
         else:
-            print('connected')
+            xbmc.log('Connected', level=xbmc.LOGNOTICE)
             self.connected = True
             self.show_notification('Connected')
             self.run()
@@ -103,7 +103,7 @@ class Client(object):
         while True:
             message_str = yield self.ws.read_message()
             if message_str is None:
-                print('connection closed')
+                xbmc.log('Connection closed', level=xbmc.LOGNOTICE)
                 self.ws = None
                 self.show_notification('Disconnected')
                 break
@@ -115,7 +115,7 @@ class Client(object):
 
                 responseData = handler.handler(data)
             except Exception as e:
-                print('handler failed:', e)
+                xbmc.log('Handler failed: {}'.format(str(e)), level=xbmc.LOGERROR)
                 responseData = { 'status': 'error', 'error': 'Unknown error' }
 
             self.ws.write_message(json.dumps({ 'correlationId': message['correlationId'], 'data': responseData }))
@@ -174,10 +174,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('Interrupted')
 
-    print('Stopping Kodi Connect Tunnel')
+    xbmc.log('Stopping Kodi Connect Tunnel', level=xbmc.LOGNOTICE)
     client_thread.stop()
-    print('Joining Tunnel Thread')
+    xbmc.log('Joining Tunnel Thread', level=xbmc.LOGNOTICE)
     client_thread.join()
-    print('Kodi Connect Exit')
+    xbmc.log('Kodi Connect Exit', level=xbmc.LOGNOTICE)
 
 

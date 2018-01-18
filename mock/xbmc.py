@@ -199,3 +199,4 @@ def log(message, level):
 #     return kodi_player
 
 LOGNOTICE = 'LOGNOTICE'
+LOGERROR = 'LOGERROR'

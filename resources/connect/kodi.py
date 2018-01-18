@@ -1,5 +1,7 @@
 import time
 
+import xbmc
+
 import kodi_rpc
 from filtering import get_best_match
 # from library_index import create_library_index
@@ -79,10 +81,10 @@ class KodiInterface(object):
 
     def update_cache(self):
         if self.library_cache.is_dirty():
-            print('Updating library cache')
+            xbmc.log('Updating library cache', level=xbmc.LOGNOTICE)
             movies = kodi_rpc.get_movies()
             tvshows = kodi_rpc.get_tv_shows()
-            print('Found {} movies and {} tvshows'.format(movies, tvshows))
+            xbmc.log('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)), level=xbmc.LOGNOTICE)
             self.library_cache.set_library(movies, tvshows)
             # self.library_index = create_library_index(movies, tvshows)
 
