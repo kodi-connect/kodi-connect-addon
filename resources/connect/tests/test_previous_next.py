@@ -9,7 +9,8 @@ class TestPreviousNext(unittest.TestCase):
         library_cache = LibraryCache()
         self.kodi = KodiInterface(library_cache)
         self.kodi.update_cache()
-        self.player = CustomPlayer(self.kodi)
+        self.player = CustomPlayer()
+        self.player.set_kodi(self.kodi)
 
     def test_no_current_item_previous(self):
       current_item = self.player._get_current_item()

@@ -12,7 +12,7 @@ mkdir -p "${install_dir}"
 
 cp -r \
   "${root_dir}/addon.xml" \
-  "${root_dir}/default.py" \
+  "${root_dir}/plugin.py" \
   "${root_dir}/resources" \
   "${root_dir}/icon.png" \
   "${root_dir}/LICENSE.txt" \

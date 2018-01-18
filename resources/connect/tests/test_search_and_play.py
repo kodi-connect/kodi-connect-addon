@@ -9,7 +9,8 @@ class TestSearchAndPlay(unittest.TestCase):
         library_cache = LibraryCache()
         self.kodi = KodiInterface(library_cache)
         self.kodi.update_cache()
-        self.player = CustomPlayer(self.kodi)
+        self.player = CustomPlayer()
+        self.player.set_kodi(self.kodi)
 
     def test_search_and_play_not_found(self):
         ret = self.kodi.find_and_play({
@@ -33,6 +34,26 @@ class TestSearchAndPlay(unittest.TestCase):
         self.assertEqual(current_item['id'], 423)
         self.assertEqual(current_item['season'], 2)
         self.assertEqual(current_item['episode'], 1)
+
+    def test_search_and_play_tvshow_next_episode(self):
+        self.kodi.find_and_play({
+            u'genres': [],
+            u'episode': None,
+            u'roles': [],
+            u'season': None,
+            u'mediaType': None,
+            u'titles': [u'How I Met Your Mother', u'Goodbye How I Met Your Mother', u'How I Met Your Mother: Extras', u'How I Met Your Puppet Mother'],
+            u'actors': [],
+            u'collections': [],
+        })
+
+        current_item = self.player._get_current_item()
+
+        self.assertEqual(current_item['type'], 'episode')
+        self.assertEqual(current_item['tvshowid'], 21)
+        self.assertEqual(current_item['id'], 487)
+        self.assertEqual(current_item['season'], 4)
+        self.assertEqual(current_item['episode'], 23)
 
     def test_search_and_play_movie_by_title(self):
         self.kodi.find_and_play({

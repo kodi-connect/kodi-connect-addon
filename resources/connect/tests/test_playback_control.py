@@ -9,7 +9,8 @@ class TestPlaybackControl(unittest.TestCase):
         library_cache = LibraryCache()
         self.kodi = KodiInterface(library_cache)
         self.kodi.update_cache()
-        self.player = CustomPlayer(self.kodi)
+        self.player = CustomPlayer()
+        self.player.set_kodi(self.kodi)
         self.kodi.find_and_play({
             'titles': ['Maze Runner'],
         })

@@ -46,19 +46,19 @@ class Handler(object):
         responseData = { 'status': 'Not found' }
         if data['type'] == 'command':
             if data['commandType'] == 'searchAndPlay':
-                responseData = search_and_play_handler(data['filter'])
+                responseData = self.search_and_play_handler(data['filter'])
             elif data['commandType'] == 'next':
-                responseData = next_handler()
+                responseData = self.next_handler()
             elif data['commandType'] == 'previous':
-                responseData = previous_handler()
+                responseData = self.previous_handler()
             elif data['commandType'] == 'startOver':
-                responseData = start_over_handler()
+                responseData = self.start_over_handler()
             elif data['commandType'] == 'pause':
-                responseData = pause_handler()
+                responseData = self.pause_handler()
             elif data['commandType'] == 'resume':
-                responseData = resume_handler()
+                responseData = self.resume_handler()
             elif data['commandType'] == 'stop':
-                responseData = stop_handler()
+                responseData = self.stop_handler()
 
         print('handler responseData:', responseData)
 

@@ -158,7 +158,8 @@ if __name__ == '__main__':
     handler = Handler(kodi)
 
     monitor = CustomMonitor(kodi)
-    player = CustomPlayer(kodi)
+    player = CustomPlayer()
+    player.set_kodi(kodi)
 
     client = Client(KODI_CONNECT_URL, kodi, handler)
     client_thread = ClientThread(client)

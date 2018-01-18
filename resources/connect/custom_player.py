@@ -1,9 +1,10 @@
 import xbmc
 
 class CustomPlayer(xbmc.Player):
-    def __init__(self, kodi):
-        xbmc.Player.__init__(self)
+    def set_kodi(self, kodi):
         self.kodi = kodi
 
     def onPlayBackStarted(self):
-        self.kodi.update_current_item()
+        print('onPlayBackStarted')
+        if self.kodi:
+            self.kodi.update_current_item()
