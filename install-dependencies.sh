@@ -25,8 +25,8 @@ cp    "${venv_libs}/backports_abc.py" "${lib_dir}"
 cp -r "${venv_libs}/tornado" "${lib_dir}"
 cp -r "${venv_libs}/Levenshtein" "${lib_dir}"
 cp -r "${venv_libs}/fuzzywuzzy" "${lib_dir}"
-cp -r "${venv_libs}/numpy" "${lib_dir}"
-cp -r "${venv_libs}/setix" "${lib_dir}"
+# cp -r "${venv_libs}/numpy" "${lib_dir}"
+# cp -r "${venv_libs}/setix" "${lib_dir}"
 
 ls -l "${lib_dir}"
 
