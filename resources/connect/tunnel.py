@@ -6,12 +6,14 @@ import xbmc
 import xbmcaddon
 import logging
 from logging.config import dictConfig
+from log import logger
 
 __settings__ = xbmcaddon.Addon()
 
 KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
 BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__settings__.getAddonInfo('path'), 'resources', 'lib' ))
 sys.path.append(BASE_RESOURCE_PATH)
+logger.notice('BASE_RESOURCE_PATH: {}'.format(BASE_RESOURCE_PATH))
 
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
@@ -24,26 +26,26 @@ from kodi import KodiInterface
 from library_cache import LibraryCache
 from custom_monitor import CustomMonitor
 from custom_player import CustomPlayer
-from utils import showNotification
+from utils import notif
 
-logging_config = dict(
-    version = 1,
-    formatters = {
-        'f': {'format':
-              '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'}
-        },
-    handlers = {
-        'h': {'class': 'logging.StreamHandler',
-              'formatter': 'f',
-              'level': logging.DEBUG}
-        },
-    loggers = {
-        'tornado.general': {'handlers': ['h'],
-                 'level': logging.DEBUG}
-        }
-)
+# logging_config = dict(
+#     version = 1,
+#     formatters = {
+#         'f': {'format':
+#               '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'}
+#         },
+#     handlers = {
+#         'h': {'class': 'logging.StreamHandler',
+#               'formatter': 'f',
+#               'level': logging.DEBUG}
+#         },
+#     loggers = {
+#         'tornado.general': {'handlers': ['h'],
+#                  'level': logging.DEBUG}
+#         }
+# )
 
-dictConfig(logging_config)
+# dictConfig(logging_config)
 
 class Client(object):
     def __init__(self, url, kodi, handler):
@@ -51,7 +53,7 @@ class Client(object):
         self.ioloop = IOLoop.current()
         self.ws = None
         self.should_stop = False
-        self.last_notification_message = None
+        self.last_connection_notification_message = None
 
         self.kodi = kodi
         self.handler = handler
@@ -70,32 +72,27 @@ class Client(object):
         self.periodic.stop()
         self.ioloop.stop()
 
-    def show_notification(self, message):
-        if self.last_notification_message != message:
-            self.last_notification_message = message
-            showNotification(message)
-
     @gen.coroutine
     def connect(self):
         username = __settings__.getSetting('username')
         secret = __settings__.getSetting('secret')
         if len(username) == 0 or len(secret) == 0:
-            print('Username and/or secret not defined, not connecting')
+            logger.debug('Username and/or secret not defined, not connecting')
             return
 
-        print('trying to connect')
+        logger.debug('trying to connect')
         try:
             request = HTTPRequest(self.url, auth_username=username, auth_password=secret)
 
             self.ws = yield websocket_connect(request)
         except Exception, e:
-            print('connection error:', e)
+            logger.debug('connection error: {}'.format(str(e)))
             self.ws = None
-            self.show_notification('Failed to connect')
+            notif.show('Failed to connect', level='error', tag='connection')
         else:
-            xbmc.log('Connected', level=xbmc.LOGNOTICE)
+            logger.notice('Connected')
             self.connected = True
-            self.show_notification('Connected')
+            notif.show('Connected', tag='connection')
             self.run()
 
     @gen.coroutine
@@ -103,54 +100,55 @@ class Client(object):
         while True:
             message_str = yield self.ws.read_message()
             if message_str is None:
-                xbmc.log('Connection closed', level=xbmc.LOGNOTICE)
+                logger.notice('Connection closed')
                 self.ws = None
-                self.show_notification('Disconnected')
+                notif.show('Disconnected', level='warn', tag='connection')
                 break
 
             try:
                 message = json.loads(message_str)
-                print(message)
+                logger.debug(message)
                 data = message['data']
 
                 responseData = handler.handler(data)
             except Exception as e:
-                xbmc.log('Handler failed: {}'.format(str(e)), level=xbmc.LOGERROR)
+                logger.error('Handler failed: {}'.format(str(e)))
                 responseData = { 'status': 'error', 'error': 'Unknown error' }
 
             self.ws.write_message(json.dumps({ 'correlationId': message['correlationId'], 'data': responseData }))
 
     def periodic_callback(self):
-        print('periodic_callback')
+        logger.debug('periodic_callback')
         if self.ws is None:
             self.connect()
         else:
             self.ws.write_message(json.dumps({ 'ping': 'pong' }))
 
-        self.kodi.update_cache()
+        try:
+            self.kodi.update_cache()
+        except Exception as e:
+            logger.error('Failed to update Kodi library: {}'.format(str(e)))
 
 class ClientThread(threading.Thread):
     def __init__(self, client):
         self.client = client
         threading.Thread.__init__(self)
-        print(self)
 
     def run(self):
-        print(self)
         self.client.start()
 
     def stop(self):
-        print('Stopping client')
+        logger.notice('Stopping client')
         self.client.stop()
 
 if __name__ == '__main__':
-    xbmc.log('Starting Kodi connect tunnel', level=xbmc.LOGNOTICE)
-    xbmc.log('Kodi connect pid={}'.format(os.getpid()), level=xbmc.LOGNOTICE)
+    logger.notice('Starting')
+    logger.notice('pid={}'.format(os.getpid()))
 
     try:
         once = OnlyOnce()
     except OnlyOnceException:
-        xbmc.log('Kodi connect tunnel already running, exiting', level=xbmc.LOGNOTICE)
+        logger.notice('Tunnel already running, exiting')
         sys.exit(0)
 
     library_cache = LibraryCache()
@@ -172,12 +170,12 @@ if __name__ == '__main__':
                 # Abort was requested while waiting. We should exit
                 break
     except KeyboardInterrupt:
-        print('Interrupted')
+        logger.debug('Interrupted')
 
-    xbmc.log('Stopping Kodi Connect Tunnel', level=xbmc.LOGNOTICE)
+    logger.notice('Stopping Tunnel')
     client_thread.stop()
-    xbmc.log('Joining Tunnel Thread', level=xbmc.LOGNOTICE)
+    logger.notice('Joining Tunnel Thread')
     client_thread.join()
-    xbmc.log('Kodi Connect Exit', level=xbmc.LOGNOTICE)
+    logger.notice('Exit')
 
 

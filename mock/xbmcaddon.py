@@ -2,7 +2,7 @@ import os
 
 class Addon(object):
     def __init__(self, id='plugin.video.kodiconnect'):
-        print('Creating Addon')
+        print('[XBMCADDON] Creating Addon')
         self.id = id
 
     def getAddonInfo(self, prop):

@@ -6,7 +6,6 @@ class OnlyOnceException(BaseException):
 
 class OnlyOnce(object):
     def __init__(self):
-        print('Creating OnlyOnce', self)
         self.tcp_server = TCPServer()
         try:
             self.tcp_server.listen(44556)

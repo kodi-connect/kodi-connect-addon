@@ -17,7 +17,7 @@ def load_json_file(filepath):
       return data
 
 def kodi_rpc(request):
-    print('Calling kodi rpc')
+    print('[XBMC] Calling kodi rpc')
     query = urllib.urlencode({ 'request': request })
 
     resp = http.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password')
@@ -64,25 +64,25 @@ class Player(object):
 
     def _play(self, params):
         self.current_item = get_item_by_params(params)
-        print('current_item:', self.current_item)
+        print('[XBMC] current_item: {}'.format(str(self.current_item)))
         self.speed = 1
         self.onPlayBackStarted()
 
     def _play_pause(self):
         if self.current_item:
             if self.speed == 0:
-                print('Resuming player')
+                print('[XBMC] Resuming player')
                 self.speed = 1
             else:
-                print('Pausing player')
+                print('[XBMC] Pausing player')
                 self.speed = 0
         else:
-            print('No source to play')
+            print('[XBMC] No source to play')
 
     def _stop(self):
         self.current_item = None
         self.speed = 0
-        print('Stopping player')
+        print('[XBMC] Stopping player')
 
     def _get_current_item(self):
         return self.current_item
@@ -92,7 +92,7 @@ class Player(object):
 
 class Monitor(object):
     def __init__(self):
-        print('Creating Monitor')
+        print('[XBMC] Creating Monitor')
 
     def abortRequested(self):
         return False
@@ -103,22 +103,13 @@ class Monitor(object):
 
 def executeJSONRPC(request_str):
     request = json.loads(request_str)
-    print('executeJSONRPC', request)
+    print('[XBMC] executeJSONRPC: {}'.format(str(request)))
 
     if request['method'].find('Player') != 0:
         return kodi_rpc(request_str)
 
-    if request['method'] == 'VideoLibrary.GetMovies':
-        # return {"id":1,"jsonrpc":"2.0","result":{"limits":{"end":0,"start":0,"total":0}}}
-        return json.dumps(movies)
-    elif request['method'] == 'VideoLibrary.GetTVShows':
-        # return {"id":1,"jsonrpc":"2.0","result":{"limits":{"end":0,"start":0,"total":0}}}
-        return json.dumps(tv_shows)
-    elif request['method'] == 'VideoLibrary.GetEpisodes':
-        return json.dumps({ 'result': { 'episodes': [{ 'episodeid': 10 }] }})
-    elif request['method'] == 'Player.Open':
-        print('Player.Open:')
-        print(request)
+    if request['method'] == 'Player.Open':
+        print('[XBMC] Player.Open:', request)
         # TODO - return proper response as if started playback
         kodi_player._play(request['params'])
         return json.dumps({})
@@ -139,53 +130,6 @@ def executeJSONRPC(request_str):
             "id": "VideoGetItem",
             "result": { 'item': kodi_player._get_current_item() },
         })
-
-        # Nothing playing
-        return json.dumps({
-            "jsonrpc": "2.0",
-            "id": "VideoGetItem",
-            "result": {
-                "item": {
-                    "title": "",
-                    "type": "unknown",
-                    "label": ""
-                }
-            }
-        })
-
-        # Movie
-        return json.dumps({
-            "jsonrpc": "2.0",
-            "id": "VideoGetItem",
-            "result": {
-                "item": {
-                    "tvshowid": -1,
-                    "episode": -1,
-                    "title": "Baywatch",
-                    "season": -1,
-                    "label": "Baywatch",
-                    "type": "movie",
-                    "id": 85
-                }
-            }
-        })
-
-        # Episode
-        return json.dumps({
-            "jsonrpc": "2.0",
-            "id": "VideoGetItem",
-            "result": {
-                "item": {
-                    "tvshowid": 16,
-                    "episode": 11,
-                    "title": "New Dimensions",
-                    "season": 1,
-                    "label": "New Dimensions",
-                    "type": "episode",
-                    "id": 308
-                }
-            }
-        })
     else:
         return None
 
@@ -195,8 +139,6 @@ def translatePath(path):
 def log(message, level):
     print("[{}]: {}".format(level, message))
 
-# def Player():
-#     return kodi_player
-
+LOGDEBUG = 'LOGDEBUG'
 LOGNOTICE = 'LOGNOTICE'
 LOGERROR = 'LOGERROR'

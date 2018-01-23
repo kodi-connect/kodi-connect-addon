@@ -1,4 +1,5 @@
 import xbmc
+from log import logger
 
 class CustomMonitor(xbmc.Monitor):
     def __init__(self, kodi):
@@ -6,5 +7,5 @@ class CustomMonitor(xbmc.Monitor):
         self.kodi = kodi
 
     def onScanFinished(self, library):
-        xbmc.log('onScanFinished: {}'.format(library), level=xbmc.LOGNOTICE)
+        logger.notice('onScanFinished: {}'.format(library))
         self.kodi.invalidate_cache()

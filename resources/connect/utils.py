@@ -20,5 +20,33 @@ def encode(string):
 
     return result
 
-def showNotification(message):
-    xbmcgui.Dialog().notification('Kodi Connect', encode(message), time=4000, icon=xbmc.translatePath(__Addon.getAddonInfo('path') + '/icon.png'), sound=False)
+class Notifications():
+    def __init__(self):
+        self.last_notifications = {}
+
+    def show(self, message, level='info', tag=None, recurring=False):
+        if level == 'info':
+            icon = xbmcgui.NOTIFICATION_INFO
+        elif level == 'warn':
+            icon = xbmcgui.NOTIFICATION_WARNING
+        elif level == 'error':
+            icon = xbmcgui.NOTIFICATION_ERROR
+        else:
+            icon = xbmcgui.NOTIFICATION_INFO
+
+        if not recurring and tag in self.last_notifications and self.last_notifications[tag] == message:
+            return
+
+        if tag:
+            self.last_notifications[tag] = message
+
+        xbmcgui.Dialog().notification('Kodi Connect', encode(message), icon=icon, time=4000)
+
+notif = Notifications()
+
+
+def showInfoNotification(message):
+    xbmcgui.Dialog().notification('Kodi Connect', encode(message), time=4000, sound=False)
+
+def showErrorNotification(message):
+    xbmcgui.Dialog().notification('Kodi Connect', encode(message), icon=xbmcgui.NOTIFICATION_ERROR, time=4000, sound=False)

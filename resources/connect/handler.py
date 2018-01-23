@@ -1,4 +1,5 @@
 import xbmc
+from log import logger
 
 def not_found_wrap(ret):
     if ret:
@@ -11,40 +12,40 @@ class Handler(object):
         self.kodi = kodi
 
     def search_and_play_handler(self, video_filter):
-        xbmc.log('search_and_play_handler: {}'.format(str(video_filter)), level=xbmc.LOGNOTICE)
+        logger.notice('search_and_play_handler: {}'.format(str(video_filter)))
 
         return not_found_wrap(self.kodi.find_and_play(video_filter))
 
     def next_handler(self):
-        xbmc.log('next_handler: {}', level=xbmc.LOGNOTICE)
+        logger.notice('next_handler')
         return not_found_wrap(self.kodi.next_item())
 
     def previous_handler(self):
-        xbmc.log('previous_handler: {}', level=xbmc.LOGNOTICE)
+        logger.notice('previous_handler')
         return not_found_wrap(self.kodi.previous_item())
 
     def start_over_handler(self):
-        xbmc.log('start_over_handler: {}', level=xbmc.LOGNOTICE)
+        logger.notice('start_over_handler')
         self.kodi.start_over()
         return { 'statuts': 'OK' }
 
     def pause_handler(self):
-        xbmc.log('pause_handler: {}', level=xbmc.LOGNOTICE)
+        logger.notice('pause_handler')
         self.kodi.pause()
         return { 'status': 'OK' }
 
     def resume_handler(self):
-        xbmc.log('resume_handler: {}', level=xbmc.LOGNOTICE)
+        logger.notice('resume_handler')
         self.kodi.resume()
         return { 'status': 'OK' }
 
     def stop_handler(self):
-        xbmc.log('stop_handler: {}', level=xbmc.LOGNOTICE)
+        logger.notice('stop_handler')
         self.kodi.stop()
         return { 'status': 'OK' }
 
     def handler(self, data):
-        xbmc.log('handler data: {}'.format(str(data)), level=xbmc.LOGNOTICE)
+        logger.notice('handler data: {}'.format(str(data)))
         responseData = { 'status': 'Not found' }
         if data['type'] == 'command':
             if data['commandType'] == 'searchAndPlay':
@@ -62,6 +63,6 @@ class Handler(object):
             elif data['commandType'] == 'stop':
                 responseData = self.stop_handler()
 
-        xbmc.log('handler responseData: {}'.format(str(responseData)), level=xbmc.LOGNOTICE)
+        logger.notice('handler responseData: {}'.format(str(responseData)))
 
         return responseData

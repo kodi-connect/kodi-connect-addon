@@ -1,5 +1,6 @@
 from random import shuffle
 from fuzzywuzzy import fuzz
+from log import logger
 
 def fuzzy_contains(array, value, threshold):
     tmp = [(v, fuzz.token_set_ratio(value, v)) for v in array]
@@ -64,14 +65,14 @@ def get_best_match(video_filter, entities):
         if filter_type in video_filter and len(video_filter[filter_type]) > 0:
             entities = filter_function(entities, video_filter[filter_type])
 
-    print([(entity['title'], entity['genre'], score) for entity, score in entities])
+    logger.debug(str([(entity['title'], entity['genre'], score) for entity, score in entities]))
 
     if entities:
-        print(entities[0])
+        logger.debug(str(entities[0]))
         max_score = max(entities, key=lambda (entity, score): score)[1]
-        print('max_score:', max_score)
+        logger.debug('max_score: {}'.format(max_score))
         best_entities = [entity for (entity, score) in entities if score == max_score]
-        print([entity['title'] for entity in best_entities])
+        logger.debug(str([entity['title'] for entity in best_entities]))
         shuffle(best_entities)
         return best_entities[0], max_score
 
