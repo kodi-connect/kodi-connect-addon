@@ -2,6 +2,9 @@ import time
 
 import xbmc
 
+from tornado.ioloop import IOLoop
+from tornado import gen
+
 import kodi_rpc
 from filtering import get_best_match
 # from library_index import create_library_index
@@ -20,9 +23,15 @@ def play_tvshow(tvshow, season, episode):
     else:
         episode_id = kodi_rpc.get_next_unwatched_episode_of_tvshow(tvshow['tvshowid'])
 
-    logger.debug('Episode id: {}'.format(episode_id))
     if episode_id:
+        logger.debug('Playing episodeid: {}'.format(episode_id))
         kodi_rpc.play_episodeid(episode_id)
+
+def async_play_movie(movie):
+    IOLoop.instance().add_callback(play_movie, movie)
+
+def async_play_tvshow(tvshow, season, episode):
+    IOLoop.instance().add_callback(play_tvshow, tvshow, season, episode)
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)
@@ -113,10 +122,10 @@ class KodiInterface(object):
         logger.debug('Find and play took {} ms'.format(int((time.time() - start) * 1000)))
 
         if movie and movie_score >= tvshow_score:
-            play_movie(movie)
+            async_play_movie(movie)
         elif tvshow:
             season, episode = _pick(video_filter, 'season', 'episode')
-            play_tvshow(tvshow, season, episode)
+            async_play_tvshow(tvshow, season, episode)
         else:
             return False
 
@@ -129,10 +138,10 @@ class KodiInterface(object):
             return False
 
         if 'movieid' in entity:
-            play_movie(entity)
+            async_play_movie(movie)
         elif 'tvshowid' in entity:
             season, episode = _pick(video_filter, 'season', 'episode')
-            play_tvshow(entity, season, episode)
+            async_play_tvshow(entity, season, episode)
         else:
             return False
 
