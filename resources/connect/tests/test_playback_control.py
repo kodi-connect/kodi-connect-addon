@@ -1,5 +1,6 @@
 import unittest
 
+from test_util import run_one
 from kodi import KodiInterface
 from library_cache import LibraryCache
 from custom_player import CustomPlayer
@@ -14,6 +15,7 @@ class TestPlaybackControl(unittest.TestCase):
         self.kodi.find_and_play({
             'titles': ['Maze Runner'],
         })
+        run_one()
 
     def test_pause(self):
         self.kodi.pause()

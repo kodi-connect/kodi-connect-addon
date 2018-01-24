@@ -1,5 +1,6 @@
 import unittest
 
+from test_util import run_one
 from kodi import KodiInterface
 from library_cache import LibraryCache
 from custom_player import CustomPlayer
@@ -28,6 +29,8 @@ class TestPreviousNext(unittest.TestCase):
             'episode': '1',
         })
 
+        run_one()
+
         self.assertFalse(self.kodi.previous_item())
 
         current_item = self.player._get_current_item()
@@ -45,6 +48,8 @@ class TestPreviousNext(unittest.TestCase):
             'episode': '24',
         })
 
+        run_one()
+
         self.assertFalse(self.kodi.next_item())
 
         current_item = self.player._get_current_item()
@@ -61,7 +66,10 @@ class TestPreviousNext(unittest.TestCase):
             'season': '2',
             'episode': '2',
         })
+        run_one()
+
         self.assertTrue(self.kodi.previous_item())
+        run_one()
 
         current_item = self.player._get_current_item()
 
@@ -77,7 +85,10 @@ class TestPreviousNext(unittest.TestCase):
             'season': '2',
             'episode': '1',
         })
+        run_one()
+
         self.assertTrue(self.kodi.previous_item())
+        run_one()
 
         current_item = self.player._get_current_item()
 
@@ -93,7 +104,10 @@ class TestPreviousNext(unittest.TestCase):
             'season': '1',
             'episode': '1',
         })
+        run_one()
+
         self.assertTrue(self.kodi.next_item())
+        run_one()
 
         current_item = self.player._get_current_item()
 
@@ -109,7 +123,10 @@ class TestPreviousNext(unittest.TestCase):
             'season': '1',
             'episode': '22',
         })
+        run_one()
+
         self.assertTrue(self.kodi.next_item())
+        run_one()
 
         current_item = self.player._get_current_item()
 

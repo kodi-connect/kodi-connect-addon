@@ -1,5 +1,6 @@
 import unittest
 
+from test_util import run_one
 from kodi import KodiInterface
 from library_cache import LibraryCache
 from custom_player import CustomPlayer
@@ -16,6 +17,8 @@ class TestSearchAndPlay(unittest.TestCase):
         ret = self.kodi.find_and_play({
             'titles': ['some made up name'],
         })
+        run_one()
+
         current_item = self.player._get_current_item()
 
         self.assertFalse(ret)
@@ -27,6 +30,8 @@ class TestSearchAndPlay(unittest.TestCase):
             'season': '2',
             'episode': '1',
         })
+        run_one()
+
         current_item = self.player._get_current_item()
 
         self.assertEqual(current_item['type'], 'episode')
@@ -46,6 +51,7 @@ class TestSearchAndPlay(unittest.TestCase):
             u'actors': [],
             u'collections': [],
         })
+        run_one()
 
         current_item = self.player._get_current_item()
 
@@ -59,6 +65,8 @@ class TestSearchAndPlay(unittest.TestCase):
         self.kodi.find_and_play({
             'titles': ['Maze Runner'],
         })
+        run_one()
+
         current_item = self.player._get_current_item()
 
         print(current_item)
@@ -69,6 +77,8 @@ class TestSearchAndPlay(unittest.TestCase):
         self.kodi.find_and_play({
             'actors': ['Jason Statham'],
         })
+        run_one()
+
         current_item = self.player._get_current_item()
 
         self.assertEqual(current_item['type'], 'movie')
@@ -79,6 +89,8 @@ class TestSearchAndPlay(unittest.TestCase):
             'titles': ['Furious'],
             'actors': ['Jason Statham'],
         })
+        run_one()
+
         current_item = self.player._get_current_item()
 
         self.assertEqual(current_item['type'], 'movie')
