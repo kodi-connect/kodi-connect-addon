@@ -109,7 +109,7 @@ def executeJSONRPC(request_str):
         return kodi_rpc(request_str)
 
     if request['method'] == 'Player.Open':
-        print('[XBMC] Player.Open:', request)
+        print('[XBMC] Player.Open: {}'.format(str(request)))
         # TODO - return proper response as if started playback
         kodi_player._play(request['params'])
         return json.dumps({})
