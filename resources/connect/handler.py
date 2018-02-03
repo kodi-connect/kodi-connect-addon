@@ -3,58 +3,40 @@ from tornado.ioloop import IOLoop
 import xbmc
 from log import logger
 
-def not_found_wrap(ret):
-    if ret:
-        return { 'status': 'OK' }
-    else:
-        return { 'status': 'error', 'error': 'not_found' }
-
 class Handler(object):
     def __init__(self, kodi):
         self.kodi = kodi
 
     def search_and_play_handler(self, video_filter):
         logger.debug('search_and_play_handler: {}'.format(str(video_filter)))
-        # return not_found_wrap(self.kodi.find_and_play(video_filter))
         IOLoop.instance().add_callback(self.kodi.find_and_play, video_filter)
 
     def search_and_display_handler(self, video_filter):
         logger.debug('search_and_display_handler: {}'.format(str(video_filter)))
-        # return not_found_wrap(self.kodi.find_and_display(video_filter))
         IOLoop.instance().add_callback(self.kodi.find_and_display, video_filter)
 
     def next_handler(self):
         logger.debug('next_handler')
-        # return not_found_wrap(self.kodi.next_item())
         IOLoop.instance().add_callback(self.kodi.next_item)
 
     def previous_handler(self):
         logger.debug('previous_handler')
-        # return not_found_wrap(self.kodi.previous_item())
         IOLoop.instance().add_callback(self.kodi.previous_item)
 
     def start_over_handler(self):
         logger.debug('start_over_handler')
-        # self.kodi.start_over()
-        # return { 'statuts': 'OK' }
         IOLoop.instance().add_callback(self.kodi.start_over)
 
     def pause_handler(self):
         logger.debug('pause_handler')
-        # self.kodi.pause()
-        # return { 'status': 'OK' }
         IOLoop.instance().add_callback(self.kodi.pause)
 
     def resume_handler(self):
         logger.debug('resume_handler')
-        # self.kodi.resume()
-        # return { 'status': 'OK' }
         IOLoop.instance().add_callback(self.kodi.resume)
 
     def stop_handler(self):
         logger.debug('stop_handler')
-        # self.kodi.stop()
-        # return { 'status': 'OK' }
         IOLoop.instance().add_callback(self.kodi.stop)
 
     def handler(self, data):
