@@ -6,7 +6,6 @@ import xbmc
 import kodi_rpc
 import filtering
 import async_player
-# from library_index import create_library_index
 from utils import notif, _get, _pick
 import strings
 from log import logger
@@ -117,7 +116,6 @@ class KodiInterface(object):
             tvshows = kodi_rpc.get_tv_shows()
             logger.debug('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
             self.library_cache.set_library(movies, tvshows)
-            # self.library_index = create_library_index(movies, tvshows)
 
     def update_current_item(self):
         current_item = get_current_item()
@@ -167,26 +165,7 @@ class KodiInterface(object):
 
         return True
 
-    def trgm_find_and_play(self, video_filter):
-        entity = self.library_index.find_best_by_filter(video_filter)
-
-        if not entity:
-            return False
-
-        if 'movieid' in entity:
-            play_movie(movie)
-        elif 'tvshowid' in entity:
-            season, episode = _pick(video_filter, 'season', 'episode')
-            play_tvshow(entity, season, episode)
-        else:
-            return False
-
-        return True
-
     def find_and_play(self, video_filter):
-        if self.library_index:
-            return self.trgm_find_and_play(video_filter)
-
         return self.fuzzy_find_and_play(video_filter)
 
     def find_and_display(self, video_filter):

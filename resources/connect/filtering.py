@@ -44,7 +44,6 @@ def has_role(entity, filter_roles):
     return len(entity_roles) > 0
 
 def filter_by_role(entities, roles):
-    # return [(entity, score) for ]
     return [(entity, score) for entity, score in entities if has_role(entity, roles)]
 
 filters = [
