@@ -34,24 +34,24 @@ from custom_monitor import CustomMonitor
 from custom_player import CustomPlayer
 from utils import notif
 
-# logging_config = dict(
-#     version = 1,
-#     formatters = {
-#         'f': {'format':
-#               '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'}
-#         },
-#     handlers = {
-#         'h': {'class': 'logging.StreamHandler',
-#               'formatter': 'f',
-#               'level': logging.DEBUG}
-#         },
-#     loggers = {
-#         'tornado.general': {'handlers': ['h'],
-#                  'level': logging.DEBUG}
-#         }
-# )
+logging_config = dict(
+    version = 1,
+    formatters = {
+        'f': {'format':
+              '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'}
+        },
+    handlers = {
+        'h': {'class': 'logging.StreamHandler',
+              'formatter': 'f',
+              'level': logging.DEBUG}
+        },
+    loggers = {
+        'tornado.general': {'handlers': ['h'],
+                 'level': logging.DEBUG}
+        }
+)
 
-# dictConfig(logging_config)
+dictConfig(logging_config)
 
 class Client(object):
     def __init__(self, url, kodi, handler):
