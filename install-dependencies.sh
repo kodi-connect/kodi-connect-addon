@@ -23,6 +23,7 @@ cp -r "${venv_libs}/six.py" "${lib_dir}"
 cp    "${venv_libs}/singledispatch.py" "${venv_libs}/singledispatch_helpers.py" "${lib_dir}"
 cp    "${venv_libs}/backports_abc.py" "${lib_dir}"
 rm -r "${venv_libs}/tornado/test"
+find  "${venv_libs}/tornado" -name '*.so' -exec rm -v "{}" \;
 cp -r "${venv_libs}/tornado" "${lib_dir}"
 cp -r "${venv_libs}/fuzzywuzzy" "${lib_dir}"
 
