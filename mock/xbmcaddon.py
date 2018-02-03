@@ -12,8 +12,8 @@ class Addon(object):
           raise Exception('Unknown property')
 
     def getSetting(self, id):
-        if id == 'username':
-            return os.environ.get('USERNAME', '')
+        if id == 'email':
+            return os.environ.get('EMAIL', '')
         elif id == 'secret':
             return os.environ.get('SECRET', '')
         else:

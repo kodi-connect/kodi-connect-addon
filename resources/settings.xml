@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
     <category label="32001">
-        <setting label="32011" type="text" id="username" default="" />
+        <setting label="32011" type="text" id="email" default="" />
         <setting label="32012" type="text" id="secret" option="hidden" default="" />
     </category>
 </settings>

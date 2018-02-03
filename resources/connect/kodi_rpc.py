@@ -17,6 +17,18 @@ def get_movies():
     })
     return _get(res, 'result', 'movies')
 
+def get_movie_details(movieid):
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "VideoLibrary.GetMovieDetails",
+        "id": 1,
+        "params": {
+            "movieid": int(movieid),
+            "properties": ["title", "genre", "fanart", "art", "thumbnail", "file", "plot"]
+        }
+    })
+    return _get(res, 'result', 'moviedetails')
+
 def get_tv_shows():
     res = _kodi_rpc({
         "jsonrpc": "2.0",
@@ -27,6 +39,19 @@ def get_tv_shows():
         }
     })
     return _get(res, 'result', 'tvshows')
+
+def get_tvshow_details(tvshowid):
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "VideoLibrary.GetTVShowDetails",
+        "id": 1,
+        "params": {
+            "tvshowid": int(tvshowid),
+            "properties": ["title", "genre", "fanart", "art", "thumbnail", "file", "plot"]
+        }
+    })
+    return _get(res, 'result', 'tvshowdetails')
+
 
 def get_active_playerid():
     res = _kodi_rpc({ "jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1 })
@@ -192,3 +217,16 @@ def seek_to_percentage(playerid, percentage):
     })
 
     return _get(res, 'result')
+
+def execute_addon(params):
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Addons.ExecuteAddon",
+        "params": {
+            "addonid": "plugin.video.kodiconnect",
+            "params": params,
+        },
+        "id": 0,
+    })
+    print(res)
+    return res

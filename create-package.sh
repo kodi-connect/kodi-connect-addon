@@ -2,7 +2,7 @@
 
 root_dir="$(cd $(dirname $0) && pwd -P)"
 plugin_id="plugin.video.kodiconnect"
-package_filepath="${root_dir}/${plugin_id}-0.1.0.zip"
+package_filepath="${root_dir}/${plugin_id}-0.1.1.zip"
 
 rm -fv "${package_filepath}"
 

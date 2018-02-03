@@ -1,37 +1,14 @@
 import time
+import urlparse
 
 import xbmc
 
-from tornado.ioloop import IOLoop
-from tornado import gen
-
 import kodi_rpc
-from filtering import get_best_match
+import filtering
+import async_player
 # from library_index import create_library_index
-from utils import _get, _pick
+from utils import notif, _get, _pick
 from log import logger
-
-def play_movie(movie):
-    logger.debug('Playing movie: {}'.format(movie['title']))
-    kodi_rpc.play_movieid(movie['movieid'])
-
-def play_tvshow(tvshow, season, episode):
-    logger.debug('Playing tv show: {}, season: {}, episode: {}'.format(tvshow['title'], season, episode))
-
-    if season and episode:
-        episode_id = kodi_rpc.get_episodeid(tvshow['tvshowid'], int(season), int(episode))
-    else:
-        episode_id = kodi_rpc.get_next_unwatched_episode_of_tvshow(tvshow['tvshowid'])
-
-    if episode_id:
-        logger.debug('Playing episodeid: {}'.format(episode_id))
-        kodi_rpc.play_episodeid(episode_id)
-
-def async_play_movie(movie):
-    IOLoop.instance().add_callback(play_movie, movie)
-
-def async_play_tvshow(tvshow, season, episode):
-    IOLoop.instance().add_callback(play_tvshow, tvshow, season, episode)
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)
@@ -73,6 +50,51 @@ def get_current_item():
 
     return None
 
+def play_movie(movie):
+    logger.debug('Playing movie: {}'.format(movie['title']))
+    kodi_rpc.play_movieid(movie['movieid'])
+
+def play_tvshow(tvshow, season, episode):
+    logger.debug('Playing tv show: {}, season: {}, episode: {}'.format(tvshow['title'], season, episode))
+
+    if season and episode:
+        episode_id = kodi_rpc.get_episodeid(tvshow['tvshowid'], int(season), int(episode))
+    else:
+        episode_id = kodi_rpc.get_next_unwatched_episode_of_tvshow(tvshow['tvshowid'])
+
+    if episode_id:
+        logger.debug('Playing episodeid: {}'.format(episode_id))
+        play_episodeid(episode_id)
+
+def play_episodeid(episodeid):
+    kodi_rpc.play_episodeid(episodeid)
+
+def play_pause(playerid):
+    kodi_rpc.play_pause_player(playerid)
+
+def stop(playerid):
+    kodi_rpc.stop_player(playerid)
+
+def get_display_url(entities):
+    ids = []
+
+    for entity in entities:
+        if 'movieid' in entity: ids.append(('movieid', entity['movieid']))
+        elif 'tvshowid' in entity: ids.append(('tvshowid', entity['tvshowid']))
+
+    qs = '&'.join(['{}={}'.format(key, id) for key, id in ids])
+
+    return 'plugin://plugin.video.kodiconnect?' + qs
+
+def get_display_entities(entities):
+    display_entities = []
+
+    for entity in entities:
+        if 'movieid' in entity: display_entities.append('m{}'.format(entity['movieid']))
+        elif 'tvshowid' in entity: display_entities.append('t{}'.format(entity['tvshowid']))
+
+    return 'x'.join(display_entities)
+
 class KodiInterface(object):
     def __init__(self, library_cache):
         self.library_cache = library_cache
@@ -89,10 +111,10 @@ class KodiInterface(object):
 
     def update_cache(self):
         if self.library_cache.is_dirty():
-            logger.notice('Updating library cache')
+            logger.debug('Updating library cache')
             movies = kodi_rpc.get_movies()
             tvshows = kodi_rpc.get_tv_shows()
-            logger.notice('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
+            logger.debug('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
             self.library_cache.set_library(movies, tvshows)
             # self.library_index = create_library_index(movies, tvshows)
 
@@ -102,30 +124,43 @@ class KodiInterface(object):
             logger.debug('current_item: {}'.format(current_item))
             self.current_item = current_item
 
-    def fuzzy_find_and_play(self, video_filter):
+    def fuzzy_filter(self, video_filter):
         start = time.time()
 
         movies, tvshows = self._get_video_library()
 
+        entities = []
         if 'mediaType' in video_filter and video_filter['mediaType'] and video_filter['mediaType'] != 'movie':
-            movie, movie_score = None, 0
+            pass
         else:
-            movie, movie_score = get_best_match(video_filter, movies)
-        logger.debug('Found Movie {} with score {}'.format(str(movie), movie_score))
+            entities = entities + movies
 
         if 'mediaType' in video_filter and video_filter['mediaType'] and video_filter['mediaType'] != 'tv show':
-            tvshow, tvshow_score = None, 0
+            pass
         else:
-            tvshow, tvshow_score = get_best_match(video_filter, tvshows)
-        logger.debug('Found TvShow {} with score {}'.format(str(tvshow), tvshow_score))
+            entities = entities + tvshows
 
-        logger.debug('Find and play took {} ms'.format(int((time.time() - start) * 1000)))
+        filtered_entities = filtering.filter_entities(video_filter, entities)
 
-        if movie and movie_score >= tvshow_score:
-            async_play_movie(movie)
-        elif tvshow:
+        logger.debug('Fuzzy filter took {} ms'.format(int((time.time() - start) * 1000)))
+
+        return filtered_entities
+
+    def fuzzy_find_and_play(self, video_filter):
+        filtered_entities = self.fuzzy_filter(video_filter)
+
+        entity = filtering.get_best_match(filtered_entities)
+        logger.debug('Found Entity {}'.format(str(entity)))
+
+        if not entity:
+            notif.show('Nothing found')
+            return False
+
+        if 'movieid' in entity:
+            play_movie(entity)
+        elif 'tvshowid' in entity:
             season, episode = _pick(video_filter, 'season', 'episode')
-            async_play_tvshow(tvshow, season, episode)
+            play_tvshow(entity, season, episode)
         else:
             return False
 
@@ -138,10 +173,10 @@ class KodiInterface(object):
             return False
 
         if 'movieid' in entity:
-            async_play_movie(movie)
+            play_movie(movie)
         elif 'tvshowid' in entity:
             season, episode = _pick(video_filter, 'season', 'episode')
-            async_play_tvshow(entity, season, episode)
+            play_tvshow(entity, season, episode)
         else:
             return False
 
@@ -152,6 +187,23 @@ class KodiInterface(object):
             return self.trgm_find_and_play(video_filter)
 
         return self.fuzzy_find_and_play(video_filter)
+
+    def find_and_display(self, video_filter):
+        filtered_entities = self.fuzzy_filter(video_filter)
+
+        if not filtered_entities:
+            notif.show('Nothing found')
+            return False
+
+        best_matches = filtering.get_best_matches(filtered_entities, 10)
+
+        display_entities = get_display_entities(best_matches)
+
+        logger.debug('display_entities: {}'.format(str(display_entities)))
+
+        kodi_rpc.execute_addon({ "entities": display_entities })
+
+        return True
 
     def next_item(self):
         logger.debug('Next item, current_item: {}'.format(str(self.current_item)))
@@ -164,7 +216,7 @@ class KodiInterface(object):
             if tvshow_id and season and episode:
                 next_episode_id = get_next_episode_id(tvshow_id, season, episode)
                 if next_episode_id:
-                    kodi_rpc.play_episodeid(next_episode_id)
+                    play_episodeid(next_episode_id)
                     return True
 
         return False
@@ -179,7 +231,7 @@ class KodiInterface(object):
             if tvshow_id and season and episode:
                 previous_episode_id = get_previous_episode_id(tvshow_id, season, episode)
                 if previous_episode_id:
-                    kodi_rpc.play_episodeid(previous_episode_id)
+                    play_episodeid(previous_episode_id)
                     return True
 
         return False
@@ -199,7 +251,7 @@ class KodiInterface(object):
         is_playing = kodi_rpc.is_player_playing(playerid)
 
         if is_playing:
-            kodi_rpc.play_pause_player(playerid)
+            play_pause(playerid)
 
         return True
 
@@ -209,12 +261,12 @@ class KodiInterface(object):
 
         # TODO - handle this, as user is expecting that something plays
         if not is_playing:
-            kodi_rpc.play_pause_player(playerid)
+            play_pause(playerid)
 
         return True
 
     def stop(self):
         playerid = kodi_rpc.get_active_playerid()
-        kodi_rpc.stop_player(playerid)
+        stop(playerid)
 
         return True

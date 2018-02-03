@@ -6,14 +6,20 @@ import xbmc
 import xbmcaddon
 import logging
 from logging.config import dictConfig
-from log import logger
 
-__settings__ = xbmcaddon.Addon()
+addon = xbmcaddon.Addon()
 
 KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
-BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__settings__.getAddonInfo('path'), 'resources', 'lib' ))
-sys.path.append(BASE_RESOURCE_PATH)
-logger.notice('BASE_RESOURCE_PATH: {}'.format(BASE_RESOURCE_PATH))
+
+LIB_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'lib' ))
+APP_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'connect' ))
+sys.path.append(LIB_RESOURCE_PATH)
+sys.path.append(APP_RESOURCE_PATH)
+
+from log import logger
+
+logger.debug('RESOURCE_PATHs: {}, {}'.format(LIB_RESOURCE_PATH, APP_RESOURCE_PATH))
+logger.debug('__file__: {}'.format(__file__))
 
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
@@ -74,15 +80,15 @@ class Client(object):
 
     @gen.coroutine
     def connect(self):
-        username = __settings__.getSetting('username')
-        secret = __settings__.getSetting('secret')
-        if len(username) == 0 or len(secret) == 0:
-            logger.debug('Username and/or secret not defined, not connecting')
+        email = addon.getSetting('email')
+        secret = addon.getSetting('secret')
+        if len(email) == 0 or len(secret) == 0:
+            logger.debug('Email and/or secret not defined, not connecting')
             return
 
         logger.debug('trying to connect')
         try:
-            request = HTTPRequest(self.url, auth_username=username, auth_password=secret)
+            request = HTTPRequest(self.url, auth_username=email, auth_password=secret)
 
             self.ws = yield websocket_connect(request)
         except Exception, e:
@@ -90,7 +96,7 @@ class Client(object):
             self.ws = None
             notif.show('Failed to connect', level='error', tag='connection')
         else:
-            logger.notice('Connected')
+            logger.debug('Connected')
             self.connected = True
             notif.show('Connected', tag='connection')
             self.run()
@@ -100,7 +106,7 @@ class Client(object):
         while True:
             message_str = yield self.ws.read_message()
             if message_str is None:
-                logger.notice('Connection closed')
+                logger.debug('Connection closed')
                 self.ws = None
                 notif.show('Disconnected', level='warn', tag='connection')
                 break
@@ -138,17 +144,17 @@ class ClientThread(threading.Thread):
         self.client.start()
 
     def stop(self):
-        logger.notice('Stopping client')
+        logger.debug('Stopping client')
         self.client.stop()
 
 if __name__ == '__main__':
-    logger.notice('Starting')
-    logger.notice('pid={}'.format(os.getpid()))
+    logger.debug('Starting')
+    logger.debug('pid={}'.format(os.getpid()))
 
     try:
         once = OnlyOnce()
     except OnlyOnceException:
-        logger.notice('Tunnel already running, exiting')
+        logger.debug('Tunnel already running, exiting')
         sys.exit(0)
 
     library_cache = LibraryCache()
@@ -172,10 +178,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         logger.debug('Interrupted')
 
-    logger.notice('Stopping Tunnel')
+    logger.debug('Stopping Tunnel')
     client_thread.stop()
-    logger.notice('Joining Tunnel Thread')
+    logger.debug('Joining Tunnel Thread')
     client_thread.join()
-    logger.notice('Exit')
+    logger.debug('Exit')
 
 

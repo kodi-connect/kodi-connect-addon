@@ -12,7 +12,7 @@ virtualenv "${tmpdir}"
 pushd "${tmpdir}"
 source "${tmpdir}/bin/activate"
 
-pip install tornado fuzzywuzzy[speedup] setix tinynumpy
+pip install tornado fuzzywuzzy setix tinynumpy
 
 venv_libs=$(file "${tmpdir}/lib/python"*"/site-packages" | cut -d: -f1)
 
@@ -22,8 +22,8 @@ cp -r "${venv_libs}/certifi" "${lib_dir}"
 cp -r "${venv_libs}/six.py" "${lib_dir}"
 cp    "${venv_libs}/singledispatch.py" "${venv_libs}/singledispatch_helpers.py" "${lib_dir}"
 cp    "${venv_libs}/backports_abc.py" "${lib_dir}"
+rm -r "${venv_libs}/tornado/test"
 cp -r "${venv_libs}/tornado" "${lib_dir}"
-cp -r "${venv_libs}/Levenshtein" "${lib_dir}"
 cp -r "${venv_libs}/fuzzywuzzy" "${lib_dir}"
 # cp -r "${venv_libs}/numpy" "${lib_dir}"
 # cp -r "${venv_libs}/setix" "${lib_dir}"

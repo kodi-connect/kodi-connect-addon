@@ -7,5 +7,5 @@ class CustomMonitor(xbmc.Monitor):
         self.kodi = kodi
 
     def onScanFinished(self, library):
-        logger.notice('onScanFinished: {}'.format(library))
+        logger.debug('onScanFinished: {}'.format(library))
         self.kodi.invalidate_cache()

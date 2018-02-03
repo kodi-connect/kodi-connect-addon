@@ -1,7 +1,7 @@
 # XBMC Media Center language file
 # Addon Name: Kodi Connect
 # Addon id: script.kodiconnect
-# Addon version: 0.1.0
+# Addon version: 0.1.1
 # Addon Provider: Tomas Kislan
 msgid ""
 msgstr ""
@@ -22,9 +22,9 @@ msgid "Connection settings"
 msgstr ""
 
 msgctxt "#32011"
-msgid "Username"
+msgid "Email"
 msgstr ""
 
 msgctxt "#32012"
-msgid "Password"
+msgid "Secret"
 msgstr ""

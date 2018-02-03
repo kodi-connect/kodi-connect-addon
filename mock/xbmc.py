@@ -136,9 +136,7 @@ def executeJSONRPC(request_str):
 def translatePath(path):
     return path
 
-def log(message, level):
-    print("[{}]: {}".format(level, message))
-
 LOGDEBUG = 'LOGDEBUG'
-LOGNOTICE = 'LOGNOTICE'
-LOGERROR = 'LOGERROR'
+
+def log(message, level=LOGDEBUG):
+    print("[{}]: {}".format(level, message))

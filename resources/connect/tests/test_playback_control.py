@@ -4,6 +4,7 @@ from test_util import run_one
 from kodi import KodiInterface
 from library_cache import LibraryCache
 from custom_player import CustomPlayer
+from handler import Handler
 
 class TestPlaybackControl(unittest.TestCase):
     def setUp(self):
@@ -12,32 +13,52 @@ class TestPlaybackControl(unittest.TestCase):
         self.kodi.update_cache()
         self.player = CustomPlayer()
         self.player.set_kodi(self.kodi)
+        self.handler = Handler(self.kodi)
         self.kodi.find_and_play({
             'titles': ['Maze Runner'],
         })
-        run_one()
 
     def test_pause(self):
-        self.kodi.pause()
+        self.handler.handler({
+            "type": "command",
+            "commandType": "pause",
+        })
+        run_one()
 
         self.assertEqual(self.player.speed, 0)
 
     def test_resume(self):
-        self.kodi.pause()
+        self.handler.handler({
+            "type": "command",
+            "commandType": "pause",
+        })
+        run_one()
 
         self.assertEqual(self.player.speed, 0)
 
-        self.kodi.resume()
+        self.handler.handler({
+            "type": "command",
+            "commandType": "resume",
+        })
+        run_one()
 
         self.assertEqual(self.player.speed, 1)
 
     def test_stop(self):
-        self.kodi.stop()
+        self.handler.handler({
+            "type": "command",
+            "commandType": "stop",
+        })
+        run_one()
 
         self.assertEqual(self.player.speed, 0)
         self.assertIsNone(self.player.current_item)
 
-        self.kodi.resume()
+        self.handler.handler({
+            "type": "command",
+            "commandType": "resume",
+        })
+        run_one()
 
         self.assertEqual(self.player.speed, 0)
         self.assertIsNone(self.player.current_item)

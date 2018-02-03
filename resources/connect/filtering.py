@@ -55,17 +55,19 @@ filters = [
     ('roles', filter_by_role),
 ]
 
-def get_best_match(video_filter, entities):
+def filter_entities(video_filter, entities):
     if not entities:
-        return None, 0
+        return []
 
     entities = [(entity, 100) for entity in entities]
 
     for filter_type, filter_function in filters:
-        if filter_type in video_filter and len(video_filter[filter_type]) > 0:
+        if filter_type in video_filter and video_filter[filter_type]:
             entities = filter_function(entities, video_filter[filter_type])
 
     logger.debug(str([(entity['title'], entity['genre'], score) for entity, score in entities]))
+
+    return entities
 
     if entities:
         logger.debug(str(entities[0]))
@@ -77,3 +79,28 @@ def get_best_match(video_filter, entities):
         return best_entities[0], max_score
 
     return None, 0
+
+def get_best_matches(entities, count):
+    entities = sorted(entities, key=lambda (entity, score): score, reverse=True)
+
+    max_score = entities[0][1]
+
+    t = []
+    for entity, score in entities:
+        if score == max_score:
+            t.append((entity, score))
+        else:
+            break
+
+    shuffle(t)
+    t.extend(entities[len(t):])
+
+    return [entity for entity, score in t[:count]]
+
+def get_best_match(entities):
+    if not entities: return None
+
+    max_score = max(entities, key=lambda (entity, score): score)[1]
+    best_entities = [entity for (entity, score) in entities if score == max_score]
+    shuffle(best_entities)
+    return best_entities[0]

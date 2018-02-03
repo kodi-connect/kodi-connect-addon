@@ -1,19 +1,13 @@
 import xbmc
 
-def log(message, level=xbmc.LOGDEBUG):
-    xbmc.log('[KodiConnect] {}'.format(message), level=level)
-
-def _log(message, level=xbmc.LOGDEBUG):
-    xbmc.log('[KodiConnect] {}'.format(message), level=level)
+def _log(message):
+    xbmc.log('[KodiConnect] {}'.format(message))
 
 class Logger():
     def debug(self, message):
-        _log(message, level=xbmc.LOGDEBUG)
-
-    def notice(self, message):
-        _log(message, xbmc.LOGNOTICE)
+        _log(message)
 
     def error(self, message):
-        _log(message, xbmc.LOGERROR)
+        _log('[ERROR] {}'.format(message))
 
 logger = Logger()

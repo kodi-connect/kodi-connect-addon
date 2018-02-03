@@ -34,7 +34,7 @@ class Notifications():
         else:
             icon = xbmcgui.NOTIFICATION_INFO
 
-        if not recurring and tag in self.last_notifications and self.last_notifications[tag] == message:
+        if tag and tag in self.last_notifications and self.last_notifications[tag] == message and not recurring:
             return
 
         if tag:
@@ -43,10 +43,3 @@ class Notifications():
         xbmcgui.Dialog().notification('Kodi Connect', encode(message), icon=icon, time=4000)
 
 notif = Notifications()
-
-
-def showInfoNotification(message):
-    xbmcgui.Dialog().notification('Kodi Connect', encode(message), time=4000, sound=False)
-
-def showErrorNotification(message):
-    xbmcgui.Dialog().notification('Kodi Connect', encode(message), icon=xbmcgui.NOTIFICATION_ERROR, time=4000, sound=False)

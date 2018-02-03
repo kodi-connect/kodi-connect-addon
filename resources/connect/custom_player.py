@@ -6,6 +6,6 @@ class CustomPlayer(xbmc.Player):
         self.kodi = kodi
 
     def onPlayBackStarted(self):
-        logger.notice('onPlayBackStarted')
+        logger.debug('onPlayBackStarted')
         if self.kodi:
             self.kodi.update_current_item()
