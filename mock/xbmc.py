@@ -2,6 +2,7 @@ import os
 import time
 import json
 import urllib
+import re
 from tornado.httpclient import HTTPClient
 
 KODI_HOST = os.environ['KODI_HOST']
@@ -23,7 +24,7 @@ def kodi_rpc(request):
     resp = http.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password')
     return resp.body
 
-def get_tvshow_by_episodeid(episodeid):
+def _get_tvshow_by_episodeid(episodeid):
     res = _kodi_rpc({
         "jsonrpc": "2.0",
         "method": 'VideoLibrary.GetEpisodeDetails',
@@ -44,12 +45,12 @@ def get_tvshow_by_episodeid(episodeid):
         }
     return None
 
-def get_item_by_params(params):
+def _get_item_by_params(params):
     item = { 'type': 'unknown' }
     if 'movieid' in params['item']:
         item = { 'type': 'movie', 'id': params['item']['movieid'] }
     elif 'episodeid' in params['item']:
-        item = get_tvshow_by_episodeid(params['item']['episodeid'])
+        item = _get_tvshow_by_episodeid(params['item']['episodeid'])
 
     return item
 
@@ -63,7 +64,7 @@ class Player(object):
         kodi_player = self
 
     def _play(self, params):
-        self.current_item = get_item_by_params(params)
+        self.current_item = _get_item_by_params(params)
         print('[XBMC] current_item: {}'.format(str(self.current_item)))
         self.speed = 1
         self.onPlayBackStarted()
@@ -135,6 +136,16 @@ def executeJSONRPC(request_str):
 
 def translatePath(path):
     return path
+
+def getLocalizedString(id):
+    with open('./resources/language/English/strings.po', 'r') as f:
+        content = f.read()
+
+        match = re.search('msgctxt "#{}"\nmsgid "(.*)"\n'.format(id), content)
+
+        if not match:
+            raise Exception('Didn\'t find string id')
+        return match.group(1)
 
 LOGDEBUG = 'LOGDEBUG'
 

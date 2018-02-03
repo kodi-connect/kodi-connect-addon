@@ -8,6 +8,7 @@ import filtering
 import async_player
 # from library_index import create_library_index
 from utils import notif, _get, _pick
+import strings
 from log import logger
 
 def get_next_episode_id(tvshow_id, season, episode):
@@ -153,7 +154,7 @@ class KodiInterface(object):
         logger.debug('Found Entity {}'.format(str(entity)))
 
         if not entity:
-            notif.show('Nothing found')
+            notif.show(strings.NOTHING_FOUND)
             return False
 
         if 'movieid' in entity:
@@ -192,7 +193,7 @@ class KodiInterface(object):
         filtered_entities = self.fuzzy_filter(video_filter)
 
         if not filtered_entities:
-            notif.show('Nothing found')
+            notif.show(strings.NOTHING_FOUND)
             return False
 
         best_matches = filtering.get_best_matches(filtered_entities, 10)

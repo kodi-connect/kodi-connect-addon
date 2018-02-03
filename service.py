@@ -33,6 +33,7 @@ from library_cache import LibraryCache
 from custom_monitor import CustomMonitor
 from custom_player import CustomPlayer
 from utils import notif
+import strings
 
 logging_config = dict(
     version = 1,
@@ -94,11 +95,11 @@ class Client(object):
         except Exception, e:
             logger.debug('connection error: {}'.format(str(e)))
             self.ws = None
-            notif.show('Failed to connect', level='error', tag='connection')
+            notif.show(strings.FAILED_TO_CONENCT, level='error', tag='connection')
         else:
             logger.debug('Connected')
             self.connected = True
-            notif.show('Connected', tag='connection')
+            notif.show(strings.CONNECTED, tag='connection')
             self.run()
 
     @gen.coroutine
@@ -108,7 +109,7 @@ class Client(object):
             if message_str is None:
                 logger.debug('Connection closed')
                 self.ws = None
-                notif.show('Disconnected', level='warn', tag='connection')
+                notif.show(strings.DISCONNECTED, level='warn', tag='connection')
                 break
 
             try:

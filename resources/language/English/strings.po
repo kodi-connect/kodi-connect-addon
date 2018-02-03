@@ -28,3 +28,23 @@ msgstr ""
 msgctxt "#32012"
 msgid "Secret"
 msgstr ""
+
+msgctxt "#33001"
+msgid "Connected"
+msgstr ""
+
+msgctxt "#33002"
+msgid "Disconnected"
+msgstr ""
+
+msgctxt "#33003"
+msgid "Failed to connect"
+msgstr ""
+
+msgctxt "#33004"
+msgid "Nothing found"
+msgstr ""
+
+msgctxt "#33005"
+msgid "No Items found"
+msgstr ""

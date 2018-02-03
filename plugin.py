@@ -17,6 +17,7 @@ APP_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 
 sys.path.append(LIB_RESOURCE_PATH)
 sys.path.append(APP_RESOURCE_PATH)
 
+import strings
 from log import logger
 
 logger.debug('RESOURCE_PATHs: {}, {}'.format(LIB_RESOURCE_PATH, APP_RESOURCE_PATH))
@@ -36,7 +37,7 @@ total_items = len(entities)
 logger.debug('entities: {}'.format(str(entities)))
 
 if not entities:
-    xbmcplugin.addDirectoryItem(handle, '', xbmcgui.ListItem('No items found'), isFolder=False)
+    xbmcplugin.addDirectoryItem(handle, '', xbmcgui.ListItem(strings.NO_ITEMS_FOUND), isFolder=False)
 
 for entity in entities:
     entity_type = entity[:1]
