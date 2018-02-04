@@ -1,6 +1,6 @@
 import xbmc
 
-KODI_CONNECT = xbmc.getLocalizedString(33000)
+KODI_CONNECT = xbmc.getLocalizedString(32000)
 CONNECTED = xbmc.getLocalizedString(33001)
 DISCONNECTED = xbmc.getLocalizedString(33002)
 FAILED_TO_CONNECT = xbmc.getLocalizedString(33003)
