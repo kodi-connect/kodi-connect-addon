@@ -27,12 +27,12 @@ jobs:
           command: ./install-dependencies.sh
 
       - run:
-          name: Wait for kodi simulator
-          command: ./wait-for-kodi-simulator.sh
-
-      - run:
           name: Run Linter
           command: ./run-linter.sh
+
+      - run:
+          name: Wait for kodi simulator
+          command: ./wait-for-kodi-simulator.sh
 
       - run:
           name: Run tests
