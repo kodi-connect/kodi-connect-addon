@@ -12,11 +12,15 @@ jobs:
 
       - run:
           name: Set PYTHONPATH environment variable
-          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources/connect' >> $BASH_ENV
+          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources' >> $BASH_ENV
 
       - run:
           name: Export
           command: export
+
+      - run:
+          name: Install Test dependencies
+          command: sudo pip install pylint flake8
 
       - run:
           name: Install dependencies
@@ -32,4 +36,4 @@ jobs:
 
       - run:
           name: Run tests
-          command: python -m unittest discover -s resources/connect/tests/
+          command: python -m unittest discover -s tests/
