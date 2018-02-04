@@ -1,3 +1,5 @@
+# pylint: disable=too-few-public-methods
+
 import socket
 from tornado.tcpserver import TCPServer
 
@@ -9,7 +11,7 @@ class OnlyOnce(object):
         self.tcp_server = TCPServer()
         try:
             self.tcp_server.listen(44556)
-        except socket.error as e:
+        except socket.error:
             raise OnlyOnceException()
 
     def __del__(self):

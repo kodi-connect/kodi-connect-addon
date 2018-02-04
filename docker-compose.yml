@@ -13,7 +13,7 @@ services:
     stdin_open: true
     tty: true
     environment:
-      PYTHONPATH: /home/python/app/mock:/home/python/app/resources/lib
+      PYTHONPATH: /home/python/app/mock:/home/python/app/resources
       KODI_HOST: http://kodi:8080
     volumes:
       - .:/home/python/app

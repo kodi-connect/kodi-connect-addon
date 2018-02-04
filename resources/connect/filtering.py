@@ -1,20 +1,20 @@
 from random import shuffle
 from fuzzywuzzy import fuzz
-from log import logger
+from connect import logger
 
 def fuzzy_contains(array, value, threshold):
     tmp = [(v, fuzz.token_set_ratio(value, v)) for v in array]
     tmp = [v for v, score in tmp if score > threshold]
     return len(tmp) > 0
 
-def custom_title_ratio(s1, s2):
+def custom_title_ratio(str1, str2):
     functions = [fuzz.token_set_ratio, fuzz.partial_ratio, fuzz.ratio]
 
-    sum = 0
+    total = 0
     for function in functions:
-        sum += function(s1, s2)
+        total += function(str1, str2)
 
-    return sum / len(functions)
+    return total / len(functions)
 
 def get_best_title_score(entity_title, filter_titles):
     scores = [custom_title_ratio(entity_title, title) for title in filter_titles]
@@ -40,13 +40,13 @@ def filter_by_actor(entities, actors):
     return [(entity, score) for entity, score in entities if has_actor(entity, actors)]
 
 def has_role(entity, filter_roles):
-    entity_roles = [cast['role'] for cast in entity['cast'] if fuzzy_contains(filter_roles, cast['role'])]
+    entity_roles = [cast['role'] for cast in entity['cast'] if fuzzy_contains(filter_roles, cast['role'], 90)]
     return len(entity_roles) > 0
 
 def filter_by_role(entities, roles):
     return [(entity, score) for entity, score in entities if has_role(entity, roles)]
 
-filters = [
+FILTERS = [
     ('titles', filter_by_title),
     ('collections', filter_by_title),
     ('genres', filter_by_genre),
@@ -60,7 +60,7 @@ def filter_entities(video_filter, entities):
 
     entities = [(entity, 100) for entity in entities]
 
-    for filter_type, filter_function in filters:
+    for filter_type, filter_function in FILTERS:
         if filter_type in video_filter and video_filter[filter_type]:
             entities = filter_function(entities, video_filter[filter_type])
 
@@ -68,38 +68,28 @@ def filter_entities(video_filter, entities):
 
     return entities
 
-    if entities:
-        logger.debug(str(entities[0]))
-        max_score = max(entities, key=lambda (entity, score): score)[1]
-        logger.debug('max_score: {}'.format(max_score))
-        best_entities = [entity for (entity, score) in entities if score == max_score]
-        logger.debug(str([entity['title'] for entity in best_entities]))
-        shuffle(best_entities)
-        return best_entities[0], max_score
-
-    return None, 0
-
 def get_best_matches(entities, count):
-    entities = sorted(entities, key=lambda (entity, score): score, reverse=True)
+    entities = sorted(entities, key=lambda entity: entity[1], reverse=True)
 
     max_score = entities[0][1]
 
-    t = []
+    tmp = []
     for entity, score in entities:
         if score == max_score:
-            t.append((entity, score))
+            tmp.append((entity, score))
         else:
             break
 
-    shuffle(t)
-    t.extend(entities[len(t):])
+    shuffle(tmp)
+    tmp.extend(entities[len(tmp):])
 
-    return [entity for entity, score in t[:count]]
+    return [entity for entity, score in tmp[:count]]
 
 def get_best_match(entities):
-    if not entities: return None
+    if not entities:
+        return None
 
-    max_score = max(entities, key=lambda (entity, score): score)[1]
+    max_score = max(entities, key=lambda entity: entity[1])[1]
     best_entities = [entity for (entity, score) in entities if score == max_score]
     shuffle(best_entities)
     return best_entities[0]

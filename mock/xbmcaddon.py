@@ -1,3 +1,5 @@
+# pylint: disable=print-statement
+
 import os
 
 class Addon(object):

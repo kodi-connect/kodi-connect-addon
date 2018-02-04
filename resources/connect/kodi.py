@@ -1,13 +1,9 @@
+# pylint: disable=no-self-use
+
 import time
-import urlparse
 
-import xbmc
-
-import kodi_rpc
-import filtering
-from utils import notif, _get, _pick
-import strings
-from log import logger
+from connect import kodi_rpc, filtering, strings, logger
+from connect.utils import notification, _get, _pick
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)
@@ -59,7 +55,7 @@ def play_tvshow(tvshow, season, episode):
     if season and episode:
         episode_id = kodi_rpc.get_episodeid(tvshow['tvshowid'], int(season), int(episode))
     else:
-        episode_id = kodi_rpc.get_next_unwatched_episode_of_tvshow(tvshow['tvshowid'])
+        episode_id = kodi_rpc.get_next_unwatched_episode(tvshow['tvshowid'])
 
     if episode_id:
         logger.debug('Playing episodeid: {}'.format(episode_id))
@@ -75,22 +71,26 @@ def stop(playerid):
     kodi_rpc.stop_player(playerid)
 
 def get_display_url(entities):
-    ids = []
+    entity_ids = []
 
     for entity in entities:
-        if 'movieid' in entity: ids.append(('movieid', entity['movieid']))
-        elif 'tvshowid' in entity: ids.append(('tvshowid', entity['tvshowid']))
+        if 'movieid' in entity:
+            entity_ids.append(('movieid', entity['movieid']))
+        elif 'tvshowid' in entity:
+            entity_ids.append(('tvshowid', entity['tvshowid']))
 
-    qs = '&'.join(['{}={}'.format(key, id) for key, id in ids])
+    query_string = '&'.join(['{}={}'.format(key, entity_id) for key, entity_id in entity_ids])
 
-    return 'plugin://plugin.video.kodiconnect?' + qs
+    return 'plugin://plugin.video.kodiconnect?' + query_string
 
 def get_display_entities(entities):
     display_entities = []
 
     for entity in entities:
-        if 'movieid' in entity: display_entities.append('m{}'.format(entity['movieid']))
-        elif 'tvshowid' in entity: display_entities.append('t{}'.format(entity['tvshowid']))
+        if 'movieid' in entity:
+            display_entities.append('m{}'.format(entity['movieid']))
+        elif 'tvshowid' in entity:
+            display_entities.append('t{}'.format(entity['tvshowid']))
 
     return 'x'.join(display_entities)
 
@@ -151,7 +151,7 @@ class KodiInterface(object):
         logger.debug('Found Entity {}'.format(str(entity)))
 
         if not entity:
-            notif.show(strings.NOTHING_FOUND)
+            notification(strings.NOTHING_FOUND)
             return False
 
         if 'movieid' in entity:
@@ -171,7 +171,7 @@ class KodiInterface(object):
         filtered_entities = self.fuzzy_filter(video_filter)
 
         if not filtered_entities:
-            notif.show(strings.NOTHING_FOUND)
+            notification(strings.NOTHING_FOUND)
             return False
 
         best_matches = filtering.get_best_matches(filtered_entities, 10)
@@ -180,7 +180,7 @@ class KodiInterface(object):
 
         logger.debug('display_entities: {}'.format(str(display_entities)))
 
-        kodi_rpc.execute_addon({ "entities": display_entities })
+        kodi_rpc.execute_addon({"entities": display_entities})
 
         return True
 
@@ -238,7 +238,6 @@ class KodiInterface(object):
         playerid = kodi_rpc.get_active_playerid()
         is_playing = kodi_rpc.is_player_playing(playerid)
 
-        # TODO - handle this, as user is expecting that something plays
         if not is_playing:
             play_pause(playerid)
 

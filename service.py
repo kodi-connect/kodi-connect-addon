@@ -1,66 +1,72 @@
+# pylint: disable=broad-except,wrong-import-position
+
 import sys
 import os
 import json
 import threading
-import xbmc
-import xbmcaddon
 import logging
 from logging.config import dictConfig
+import xbmc
+import xbmcaddon
 
-addon = xbmcaddon.Addon()
+__addon__ = xbmcaddon.Addon()
 
 KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
 
-LIB_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'lib' ))
-APP_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'connect' ))
-sys.path.append(LIB_RESOURCE_PATH)
-sys.path.append(APP_RESOURCE_PATH)
-
-from log import logger
-
-logger.debug('RESOURCE_PATHs: {}, {}'.format(LIB_RESOURCE_PATH, APP_RESOURCE_PATH))
-logger.debug('__file__: {}'.format(__file__))
+RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
+LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
+sys.path.append(RESOURCES_PATH)
+sys.path.append(LIB_RESOURCES_PATH)
 
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
 from tornado.websocket import websocket_connect
 from tornado.httpclient import HTTPRequest
 
-from only_once import OnlyOnce, OnlyOnceException
-from handler import Handler
-from kodi import KodiInterface
-from library_cache import LibraryCache
-from custom_monitor import CustomMonitor
-from custom_player import CustomPlayer
-from utils import notif
-import strings
+from connect import logger, strings
+from connect.only_once import OnlyOnce, OnlyOnceException
+from connect.handler import Handler
+from connect.kodi import KodiInterface
+from connect.library_cache import LibraryCache
+from connect.custom_monitor import CustomMonitor
+from connect.custom_player import CustomPlayer
+from connect.utils import notification
 
-logging_config = dict(
-    version = 1,
-    formatters = {
-        'f': {'format':
-              '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'}
-        },
-    handlers = {
-        'h': {'class': 'logging.StreamHandler',
-              'formatter': 'f',
-              'level': logging.DEBUG}
-        },
-    loggers = {
-        'tornado.general': {'handlers': ['h'],
-                 'level': logging.DEBUG}
+logger.debug('RESOURCES_PATHs: {}, {}'.format(RESOURCES_PATH, LIB_RESOURCES_PATH))
+logger.debug('__file__: {}'.format(__file__))
+
+__logging_config__ = dict(
+    version=1,
+    formatters={
+        'f': {
+            'format':
+            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
         }
+    },
+    handlers={
+        'h': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'f',
+            'level': logging.DEBUG
+        }
+    },
+    loggers={
+        'tornado.general': {
+            'handlers': ['h'],
+            'level': logging.DEBUG
+        }
+    }
 )
 
-dictConfig(logging_config)
+dictConfig(__logging_config__)
 
 class Client(object):
+    """Kodi Connect Websocket Connection"""
     def __init__(self, url, kodi, handler):
         self.url = url
-        self.ioloop = IOLoop.current()
-        self.ws = None
+        self.websocket = None
+        self.connected = False
         self.should_stop = False
-        self.last_connection_notification_message = None
 
         self.kodi = kodi
         self.handler = handler
@@ -68,22 +74,25 @@ class Client(object):
         self.periodic = PeriodicCallback(self.periodic_callback, 20000)
 
     def start(self):
+        """Start IO loop and try to connect to the server"""
         self.connect()
         self.periodic.start()
-        self.ioloop.start()
+        IOLoop.current().start()
 
     def stop(self):
+        """Stop IO loop"""
         self.should_stop = True
-        if self.ws is not None:
-            self.ws.close()
+        if self.websocket is not None:
+            self.websocket.close()
         self.periodic.stop()
-        self.ioloop.stop()
+        IOLoop.current().stop()
 
     @gen.coroutine
     def connect(self):
-        email = addon.getSetting('email')
-        secret = addon.getSetting('secret')
-        if len(email) == 0 or len(secret) == 0:
+        """Connect to the server and update connection to websocket"""
+        email = __addon__.getSetting('email')
+        secret = __addon__.getSetting('secret')
+        if not email or not secret:
             logger.debug('Email and/or secret not defined, not connecting')
             return
 
@@ -91,25 +100,26 @@ class Client(object):
         try:
             request = HTTPRequest(self.url, auth_username=email, auth_password=secret)
 
-            self.ws = yield websocket_connect(request)
-        except Exception, e:
-            logger.debug('connection error: {}'.format(str(e)))
-            self.ws = None
-            notif.show(strings.FAILED_TO_CONENCT, level='error', tag='connection')
+            self.websocket = yield websocket_connect(request)
+        except Exception as ex:
+            logger.debug('connection error: {}'.format(str(ex)))
+            self.websocket = None
+            notification(strings.FAILED_TO_CONNECT, level='error', tag='connection')
         else:
             logger.debug('Connected')
             self.connected = True
-            notif.show(strings.CONNECTED, tag='connection')
+            notification(strings.CONNECTED, tag='connection')
             self.run()
 
     @gen.coroutine
     def run(self):
+        """Main loop handling incomming messages"""
         while True:
-            message_str = yield self.ws.read_message()
+            message_str = yield self.websocket.read_message()
             if message_str is None:
                 logger.debug('Connection closed')
-                self.ws = None
-                notif.show(strings.DISCONNECTED, level='warn', tag='connection')
+                self.websocket = None
+                notification(strings.DISCONNECTED, level='warn', tag='connection')
                 break
 
             try:
@@ -117,26 +127,28 @@ class Client(object):
                 logger.debug(message)
                 data = message['data']
 
-                responseData = handler.handler(data)
-            except Exception as e:
-                logger.error('Handler failed: {}'.format(str(e)))
-                responseData = { 'status': 'error', 'error': 'Unknown error' }
+                response_data = self.handler.handler(data)
+            except Exception as ex:
+                logger.error('Handler failed: {}'.format(str(ex)))
+                response_data = {"status": "error", "error": "Unknown error"}
 
-            self.ws.write_message(json.dumps({ 'correlationId': message['correlationId'], 'data': responseData }))
+            self.websocket.write_message(json.dumps({"correlationId": message['correlationId'], "data": response_data}))
 
     def periodic_callback(self):
+        """Periodic callback"""
         logger.debug('periodic_callback')
-        if self.ws is None:
+        if self.websocket is None:
             self.connect()
         else:
-            self.ws.write_message(json.dumps({ 'ping': 'pong' }))
+            self.websocket.write_message(json.dumps({"ping": "pong"}))
 
         try:
             self.kodi.update_cache()
-        except Exception as e:
-            logger.error('Failed to update Kodi library: {}'.format(str(e)))
+        except Exception as ex:
+            logger.error('Failed to update Kodi library: {}'.format(str(ex)))
 
 class ClientThread(threading.Thread):
+    """Background thread for Client"""
     def __init__(self, client):
         self.client = client
         threading.Thread.__init__(self)
@@ -145,15 +157,18 @@ class ClientThread(threading.Thread):
         self.client.start()
 
     def stop(self):
+        """Stop client"""
         logger.debug('Stopping client')
         self.client.stop()
 
-if __name__ == '__main__':
+def main():
+    """Main function"""
     logger.debug('Starting')
     logger.debug('pid={}'.format(os.getpid()))
 
     try:
-        once = OnlyOnce()
+        __once__ = OnlyOnce()
+        logger.debug(str(__once__))
     except OnlyOnceException:
         logger.debug('Tunnel already running, exiting')
         sys.exit(0)
@@ -185,4 +200,5 @@ if __name__ == '__main__':
     client_thread.join()
     logger.debug('Exit')
 
-
+if __name__ == '__main__':
+    main()

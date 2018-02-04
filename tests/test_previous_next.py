@@ -1,10 +1,12 @@
+# eslint: disable=duplicate-code
+
 import unittest
 
 from test_util import run_one
-from kodi import KodiInterface
-from library_cache import LibraryCache
-from custom_player import CustomPlayer
-from handler import Handler
+from connect.kodi import KodiInterface
+from connect.library_cache import LibraryCache
+from connect.custom_player import CustomPlayer
+from connect.handler import Handler
 
 class TestPreviousNext(unittest.TestCase):
     def setUp(self):
@@ -16,13 +18,13 @@ class TestPreviousNext(unittest.TestCase):
         self.handler = Handler(self.kodi)
 
     def test_no_current_item_previous(self):
-      current_item = self.player._get_current_item()
-      self.assertIsNone(current_item)
+        current_item = self.player._get_current_item()
+        self.assertIsNone(current_item)
 
-      self.assertFalse(self.kodi.previous_item())
+        self.assertFalse(self.kodi.previous_item())
 
-      current_item = self.player._get_current_item()
-      self.assertIsNone(current_item)
+        current_item = self.player._get_current_item()
+        self.assertIsNone(current_item)
 
     def test_no_previous_item(self):
         self.kodi.find_and_play({

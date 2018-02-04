@@ -1,9 +1,10 @@
+# eslint: disable=duplicate-code
+
 import unittest
 
-from test_util import run_one
-from kodi import KodiInterface
-from library_cache import LibraryCache
-from handler import Handler
+from connect.kodi import KodiInterface
+from connect.library_cache import LibraryCache
+from connect.handler import Handler
 
 class TestHandler(unittest.TestCase):
     def setUp(self):

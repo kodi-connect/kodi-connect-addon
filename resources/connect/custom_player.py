@@ -1,7 +1,11 @@
 import xbmc
-from log import logger
+from connect import logger
 
 class CustomPlayer(xbmc.Player):
+    def __init__(self, *args, **kwargs):
+        xbmc.Player.__init__(self, args, kwargs)
+        self.kodi = None
+
     def set_kodi(self, kodi):
         self.kodi = kodi
 

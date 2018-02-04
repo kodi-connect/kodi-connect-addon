@@ -1,3 +1,5 @@
+# pylint: disable=wrong-import-position
+
 import os
 import sys
 import urlparse
@@ -7,72 +9,74 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 
-addon = xbmcaddon.Addon()
-handle = int(sys.argv[1])
+__addon__ = xbmcaddon.Addon()
+__handle__ = int(sys.argv[1])
+__args__ = urlparse.parse_qs(sys.argv[2][1:])
 
-xbmcplugin.setContent(handle, 'movies')
+xbmcplugin.setContent(__handle__, 'movies')
 
-LIB_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'lib' ))
-APP_RESOURCE_PATH = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'connect' ))
-sys.path.append(LIB_RESOURCE_PATH)
-sys.path.append(APP_RESOURCE_PATH)
+RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
+LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
+sys.path.append(RESOURCES_PATH)
+sys.path.append(LIB_RESOURCES_PATH)
 
-import strings
-from log import logger
+from connect import logger, strings, kodi_rpc
 
-logger.debug('RESOURCE_PATHs: {}, {}'.format(LIB_RESOURCE_PATH, APP_RESOURCE_PATH))
+logger.debug('RESOURCES_PATHs: {}, {}'.format(RESOURCES_PATH, LIB_RESOURCES_PATH))
 logger.debug('__file__: {}'.format(__file__))
 
-import kodi_rpc
-from utils import _get
+def main():
+    logger.debug('argv: {}'.format(sys.argv[2][1:]))
+    logger.debug('args: {}'.format(str(__args__)))
 
-args = urlparse.parse_qs(sys.argv[2][1:])
+    entities = __args__.get('entities', [''])[0].split('x')
+    total_items = len(entities)
 
-logger.debug('argv: {}'.format(sys.argv[2][1:]))
-logger.debug('args: {}'.format(str(args)))
+    logger.debug('entities: {}'.format(str(entities)))
 
-entities = args.get('entities', [''])[0].split('x')
-total_items = len(entities)
+    if not entities:
+        xbmcplugin.addDirectoryItem(__handle__, '', xbmcgui.ListItem(strings.NO_ITEMS_FOUND), isFolder=False)
 
-logger.debug('entities: {}'.format(str(entities)))
+    for entity in entities:
+        entity_type = entity[:1]
+        entity_id = entity[1:]
 
-if not entities:
-    xbmcplugin.addDirectoryItem(handle, '', xbmcgui.ListItem(strings.NO_ITEMS_FOUND), isFolder=False)
+        if not entity_id:
+            continue
 
-for entity in entities:
-    entity_type = entity[:1]
-    entity_id = entity[1:]
+        entity_id = int(entity_id)
 
-    if not entity_id: continue
-    entity_id = int(entity_id)
+        if entity_type == 'm':
+            details = kodi_rpc.get_movie_details(entity_id)
+            logger.debug(details)
 
-    if entity_type == 'm':
-        details = kodi_rpc.get_movie_details(entity_id)
-        logger.debug(details)
+            label = details.get('label', 'N/A')
+            plot = details.get('plot', 'N/A')
+            url = details.get('file', '')
+            fanart = details.get('fanart')
+            thumbnail = details.get('thumbnail')
 
-        label = details.get('label', 'N/A')
-        plot = details.get('plot', 'N/A')
-        url = details.get('file', '')
-        fanart = details.get('fanart')
-        thumbnail = details.get('thumbnail')
+            item = xbmcgui.ListItem(label)
+            item.setProperty('IsPlayable', 'true')
+            item.setInfo('video', {"plot": plot})
+            if fanart:
+                item.setArt({"fanart": fanart})
+            if thumbnail:
+                item.setArt({"thumbnail": thumbnail, "poster": thumbnail})
 
-        item = xbmcgui.ListItem(label)
-        item.setProperty('IsPlayable', 'true')
-        item.setInfo('video', { "plot": plot })
-        if fanart: item.setArt({ "fanart": fanart })
-        if thumbnail: item.setArt({ "thumbnail": thumbnail, "poster": thumbnail })
+            xbmcplugin.addDirectoryItem(__handle__, url, item, totalItems=total_items)
+        elif entity_type == 't':
+            details = kodi_rpc.get_tvshow_details(entity_id)
+            logger.debug(details)
 
-        xbmcplugin.addDirectoryItem(handle, url, item, totalItems=total_items)
-    elif entity_type == 't':
-        details = kodi_rpc.get_tvshow_details(entity_id)
-        logger.debug(details)
+            label = details.get('label', 'N/A')
+            plot = details.get('plot', 'N/A')
 
-        label = details.get('label', 'N/A')
-        plot = details.get('plot', 'N/A')
+            item = xbmcgui.ListItem(label)
+            item.setInfo('video', {"plot": plot})
 
-        item = xbmcgui.ListItem(label)
-        item.setInfo('video', { "plot": plot })
+            xbmcplugin.addDirectoryItem(__handle__, '', item, totalItems=total_items)
 
-        xbmcplugin.addDirectoryItem(handle, '', item, totalItems=total_items)
+    xbmcplugin.endOfDirectory(__handle__)
 
-xbmcplugin.endOfDirectory(handle)
+main()

@@ -1,7 +1,5 @@
 from tornado.ioloop import IOLoop
-
-import xbmc
-from log import logger
+from connect import logger
 
 class Handler(object):
     def __init__(self, kodi):
@@ -41,7 +39,7 @@ class Handler(object):
 
     def handler(self, data):
         logger.debug('handler data: {}'.format(str(data)))
-        responseData = { 'status': 'ok' }
+        response_data = {'status': 'ok'}
         if data['type'] == 'command':
             if data['commandType'] == 'searchAndPlay':
                 self.search_and_play_handler(data.get('filter', {}))
@@ -60,10 +58,10 @@ class Handler(object):
             elif data['commandType'] == 'stop':
                 self.stop_handler()
             else:
-                responseData = { 'status': 'error', 'error': 'unknown_command' }
+                response_data = {'status': 'error', 'error': 'unknown_command'}
         else:
-            responseData = { 'status': 'error', 'error': 'unknown_command' }
+            response_data = {'status': 'error', 'error': 'unknown_command'}
 
-        logger.debug('handler responseData: {}'.format(str(responseData)))
+        logger.debug('handler response_data: {}'.format(str(response_data)))
 
-        return responseData
+        return response_data

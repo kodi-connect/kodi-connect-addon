@@ -1,3 +1,5 @@
+# pylint: disable=print-statement
+
 import os
 import time
 import json
@@ -11,11 +13,6 @@ http = HTTPClient()
 
 def _kodi_rpc(obj):
     return json.loads(executeJSONRPC(json.dumps(obj)))
-
-def load_json_file(filepath):
-    with open(filepath, 'r') as json_file:
-      data = json.load(json_file)
-      return data
 
 def kodi_rpc(request):
     print('[XBMC] Calling kodi rpc')
@@ -57,7 +54,7 @@ def _get_item_by_params(params):
 kodi_player = None
 
 class Player(object):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.current_item = None
         self.speed = 0
         global kodi_player
@@ -117,7 +114,6 @@ def executeJSONRPC(request_str):
     elif request['method'] == 'Player.GetActivePlayers':
         return json.dumps({ 'result': [{ 'type': 'video', 'playerid': 1 }]})
     elif request['method'] == 'Player.GetProperties':
-        properties = request['params']['properties']
         return json.dumps({ 'result': { 'speed': kodi_player.speed }})
     elif request['method'] == 'Player.PlayPause':
         kodi_player._play_pause()
@@ -137,11 +133,11 @@ def executeJSONRPC(request_str):
 def translatePath(path):
     return path
 
-def getLocalizedString(id):
+def getLocalizedString(string_id):
     with open('./resources/language/English/strings.po', 'r') as f:
         content = f.read()
 
-        match = re.search('msgctxt "#{}"\nmsgid "(.*)"\n'.format(id), content)
+        match = re.search('msgctxt "#{}"\nmsgid "(.*)"\n'.format(string_id), content)
 
         if not match:
             raise Exception('Didn\'t find string id')

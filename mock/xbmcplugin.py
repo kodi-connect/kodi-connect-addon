@@ -1,3 +1,5 @@
+# pylint: disable=print-statement
+
 _end_of_directory = False
 
 def addDirectoryItem(handle, url, listitem, isFolder=False, totalItems=None):

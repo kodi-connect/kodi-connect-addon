@@ -1,7 +1,7 @@
 import json
 import xbmc
 
-from utils import _get
+from connect.utils import _get
 
 def _kodi_rpc(obj):
     return json.loads(xbmc.executeJSONRPC(json.dumps(obj)))
@@ -54,7 +54,7 @@ def get_tvshow_details(tvshowid):
 
 
 def get_active_playerid():
-    res = _kodi_rpc({ "jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1 })
+    res = _kodi_rpc({"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1})
     players = _get(res, 'result')
     if not players:
         return None
@@ -85,7 +85,7 @@ def is_player_playing(playerid):
 
 def play_pause_player(playerid):
     if not playerid:
-        return
+        return None
 
     res = _kodi_rpc({
         "jsonrpc": "2.0",
@@ -96,9 +96,11 @@ def play_pause_player(playerid):
         }
     })
 
+    return res
+
 def stop_player(playerid):
     if not playerid:
-        return
+        return None
 
     res = _kodi_rpc({
         "jsonrpc": "2.0",
@@ -108,6 +110,8 @@ def stop_player(playerid):
             'playerid': playerid
         }
     })
+
+    return res
 
 def get_episodes_for_season(tvshow_id, season_num):
     res = _kodi_rpc({
@@ -142,20 +146,17 @@ def get_last_episodeid(tvshow_id, season_num):
 
     return episodes[-1]['episodeid']
 
-def get_next_unwatched_episode_of_tvshow(tvshow_id):
-    FILTER_UNWATCHED = { "operator": "lessthan", "field": "playcount", "value": "1" };
-    SORT_EPISODE = { "method": "episode", "order": "ascending" };
-
+def get_next_unwatched_episode(tvshow_id):
     res = _kodi_rpc({
         "jsonrpc": "2.0",
         "method": 'VideoLibrary.GetEpisodes',
         "id": 1,
         'params': {
             'tvshowid': tvshow_id,
-            'filter': FILTER_UNWATCHED,
-            'sort': SORT_EPISODE,
+            'filter': {"operator": "lessthan", "field": "playcount", "value": "1"},
+            'sort': {"method": "episode", "order": "ascending"},
             'properties': ['playcount'],
-            'limits': { 'start': 0, 'end': 1 },
+            'limits': {'start': 0, 'end': 1},
         }
     })
 
@@ -172,8 +173,8 @@ def play_movieid(movie_id):
         "method": 'Player.Open',
         "id": 1,
         'params': {
-            'item': { 'movieid': movie_id },
-            'options': { 'resume': True },
+            'item': {'movieid': movie_id},
+            'options': {'resume': True},
         },
     })
 
@@ -185,8 +186,8 @@ def play_episodeid(episode_id):
         "method": 'Player.Open',
         "id": 1,
         'params': {
-            'item': { 'episodeid': episode_id },
-            'options': { 'resume': True },
+            'item': {'episodeid': episode_id},
+            'options': {'resume': True},
         },
     })
 
@@ -228,5 +229,5 @@ def execute_addon(params):
         },
         "id": 0,
     })
-    print(res)
+
     return res
