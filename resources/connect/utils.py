@@ -2,6 +2,8 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
+import strings
+
 __Addon = xbmcaddon.Addon()
 
 def _get(dictionary, *keys):
@@ -40,6 +42,6 @@ class Notifications():
         if tag:
             self.last_notifications[tag] = message
 
-        xbmcgui.Dialog().notification('Kodi Connect', encode(message), icon=icon, time=4000)
+        xbmcgui.Dialog().notification(strings.KODI_CONNECT, encode(message), icon=icon, time=4000)
 
 notif = Notifications()

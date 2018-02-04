@@ -5,7 +5,6 @@ import xbmc
 
 import kodi_rpc
 import filtering
-import async_player
 from utils import notif, _get, _pick
 import strings
 from log import logger
