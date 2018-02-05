@@ -248,3 +248,19 @@ class KodiInterface(object):
         stop(playerid)
 
         return True
+
+    def rewind(self):
+        kodi_rpc.small_skip_backwards()
+        return True
+
+    def fastforward(self):
+        kodi_rpc.small_skip_forward()
+        return True
+
+    def turnon(self):
+        kodi_rpc.turn_on()
+        return True
+
+    def turnoff(self):
+        kodi_rpc.turn_off()
+        return True

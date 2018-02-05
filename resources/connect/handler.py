@@ -1,9 +1,37 @@
 from tornado.ioloop import IOLoop
-from connect import logger
+from connect import utils, logger
 
 class Handler(object):
     def __init__(self, kodi):
         self.kodi = kodi
+
+    def capabilities_handler(self):
+        capabilities = [
+            {
+                "type": 'AlexaInterface',
+                "interface": 'Alexa.RemoteVideoPlayer',
+                "version": '3',
+            },
+            {
+                "type": 'AlexaInterface',
+                "interface": 'Alexa.PlaybackController',
+                "version": '3',
+                "supportedOperations": ['Play', 'Pause', 'Stop', 'StartOver', 'Previous', 'Next', 'Rewind', 'FastForward'],
+            },
+        ]
+
+        if utils.cec_available():
+            capabilities.append({
+                "type": "AlexaInterface",
+                "interface": "Alexa.PowerController",
+                "version": "3",
+                "properties": {
+                    "supported": [{"name": "powerState"}],
+                    "proactivelyReported": True,
+                },
+            })
+
+        return capabilities
 
     def search_and_play_handler(self, video_filter):
         logger.debug('search_and_play_handler: {}'.format(str(video_filter)))
@@ -37,6 +65,22 @@ class Handler(object):
         logger.debug('stop_handler')
         IOLoop.instance().add_callback(self.kodi.stop)
 
+    def rewind_handler(self):
+        logger.debug('rewind_handler')
+        IOLoop.instance().add_callback(self.kodi.rewind)
+
+    def fastforward_handler(self):
+        logger.debug('fastforward_handler')
+        IOLoop.instance().add_callback(self.kodi.fastforward)
+
+    def turnon_handler(self):
+        logger.debug('turnon_handler')
+        IOLoop.instance().add_callback(self.kodi.turnon)
+
+    def turnoff_handler(self):
+        logger.debug('turnoff_handler')
+        IOLoop.instance().add_callback(self.kodi.turnoff)
+
     def handler(self, data):
         logger.debug('handler data: {}'.format(str(data)))
         response_data = {'status': 'ok'}
@@ -57,8 +101,18 @@ class Handler(object):
                 self.resume_handler()
             elif data['commandType'] == 'stop':
                 self.stop_handler()
+            elif data['commandType'] == 'rewind':
+                self.rewind_handler()
+            elif data['commandType'] == 'fastForward':
+                self.fastforward_handler()
+            elif data['commandType'] == 'turnOn' and utils.cec_available():
+                self.turnon_handler()
+            elif data['commandType'] == 'turnOff' and utils.cec_available():
+                self.turnoff_handler()
             else:
                 response_data = {'status': 'error', 'error': 'unknown_command'}
+        elif data['type'] == 'capabilities':
+            response_data = {"status": "ok", "capabilities": self.capabilities_handler()}
         else:
             response_data = {'status': 'error', 'error': 'unknown_command'}
 

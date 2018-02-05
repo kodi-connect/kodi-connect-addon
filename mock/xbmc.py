@@ -130,6 +130,9 @@ def executeJSONRPC(request_str):
     else:
         return None
 
+def executebuiltin(str):
+    print('[XBMC] executebuiltin: {}'.format(str))
+
 def translatePath(path):
     return path
 

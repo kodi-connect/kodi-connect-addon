@@ -113,6 +113,12 @@ def stop_player(playerid):
 
     return res
 
+def small_skip_backwards():
+    xbmc.executebuiltin('PlayerControl(SmallSkipBackward)')
+
+def small_skip_forward():
+    xbmc.executebuiltin('PlayerControl(SmallSkipForward)')
+
 def get_episodes_for_season(tvshow_id, season_num):
     res = _kodi_rpc({
         "jsonrpc": "2.0",
@@ -231,3 +237,9 @@ def execute_addon(params):
     })
 
     return res
+
+def turn_on():
+    xbmc.executebuiltin('CECActivateSource()')
+
+def turn_off():
+    xbmc.executebuiltin('CECStandby()')

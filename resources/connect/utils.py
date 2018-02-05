@@ -1,3 +1,4 @@
+import os
 import xbmcgui
 
 from connect import strings
@@ -37,3 +38,17 @@ def notification(message, level='info', tag=None, recurring=False):
         __last_notifications__[tag] = message
 
     xbmcgui.Dialog().notification(strings.KODI_CONNECT, encode(message), icon=icon, time=4000)
+
+def cmd_exists(cmd):
+    return any(
+        os.access(os.path.join(path, cmd), os.X_OK)
+        for path in os.environ["PATH"].split(os.pathsep)
+    )
+
+__cec_client_found__ = None
+
+def cec_available():
+    global __cec_client_found__
+    if __cec_client_found__ is None:
+        __cec_client_found__ = cmd_exists('cec-client')
+    return __cec_client_found__
