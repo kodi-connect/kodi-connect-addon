@@ -1,37 +1,37 @@
 from tornado.ioloop import IOLoop
 from connect import utils, logger
 
+def capabilities_handler():
+    capabilities = [
+        {
+            "type": 'AlexaInterface',
+            "interface": 'Alexa.RemoteVideoPlayer',
+            "version": '3',
+        },
+        {
+            "type": 'AlexaInterface',
+            "interface": 'Alexa.PlaybackController',
+            "version": '3',
+            "supportedOperations": ['Play', 'Pause', 'Stop', 'StartOver', 'Previous', 'Next', 'Rewind', 'FastForward'],
+        },
+    ]
+
+    if utils.cec_available():
+        capabilities.append({
+            "type": "AlexaInterface",
+            "interface": "Alexa.PowerController",
+            "version": "3",
+            "properties": {
+                "supported": [{"name": "powerState"}],
+                "proactivelyReported": True,
+            },
+        })
+
+    return capabilities
+
 class Handler(object):
     def __init__(self, kodi):
         self.kodi = kodi
-
-    def capabilities_handler(self):
-        capabilities = [
-            {
-                "type": 'AlexaInterface',
-                "interface": 'Alexa.RemoteVideoPlayer',
-                "version": '3',
-            },
-            {
-                "type": 'AlexaInterface',
-                "interface": 'Alexa.PlaybackController',
-                "version": '3',
-                "supportedOperations": ['Play', 'Pause', 'Stop', 'StartOver', 'Previous', 'Next', 'Rewind', 'FastForward'],
-            },
-        ]
-
-        if utils.cec_available():
-            capabilities.append({
-                "type": "AlexaInterface",
-                "interface": "Alexa.PowerController",
-                "version": "3",
-                "properties": {
-                    "supported": [{"name": "powerState"}],
-                    "proactivelyReported": True,
-                },
-            })
-
-        return capabilities
 
     def search_and_play_handler(self, video_filter):
         logger.debug('search_and_play_handler: {}'.format(str(video_filter)))
@@ -81,6 +81,8 @@ class Handler(object):
         logger.debug('turnoff_handler')
         IOLoop.instance().add_callback(self.kodi.turnoff)
 
+# pylint: disable=too-many-branches
+
     def handler(self, data):
         logger.debug('handler data: {}'.format(str(data)))
         response_data = {'status': 'ok'}
@@ -112,7 +114,7 @@ class Handler(object):
             else:
                 response_data = {'status': 'error', 'error': 'unknown_command'}
         elif data['type'] == 'capabilities':
-            response_data = {"status": "ok", "capabilities": self.capabilities_handler()}
+            response_data = {"status": "ok", "capabilities": capabilities_handler()}
         else:
             response_data = {'status': 'error', 'error': 'unknown_command'}
 

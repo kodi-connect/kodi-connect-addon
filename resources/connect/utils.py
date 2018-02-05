@@ -1,3 +1,5 @@
+# pylint: disable=global-statement
+
 import os
 import xbmcgui
 
@@ -22,6 +24,8 @@ def encode(string):
 __last_notifications__ = {}
 
 def notification(message, level='info', tag=None, recurring=False):
+    global __last_notifications__
+
     if level == 'info':
         icon = xbmcgui.NOTIFICATION_INFO
     elif level == 'warn':
