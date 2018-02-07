@@ -4,7 +4,6 @@ import os
 import time
 import json
 import urllib
-import re
 from tornado.httpclient import HTTPClient
 
 KODI_HOST = os.environ['KODI_HOST']
@@ -135,16 +134,6 @@ def executebuiltin(str):
 
 def translatePath(path):
     return path
-
-def getLocalizedString(string_id):
-    with open('./resources/language/English/strings.po', 'r') as f:
-        content = f.read()
-
-        match = re.search('msgctxt "#{}"\nmsgid "(.*)"\n'.format(string_id), content)
-
-        if not match:
-            raise Exception('Didn\'t find string id')
-        return match.group(1)
 
 LOGDEBUG = 'LOGDEBUG'
 

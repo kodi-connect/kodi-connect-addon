@@ -1,6 +1,7 @@
 # pylint: disable=print-statement
 
 import os
+import re
 
 class Addon(object):
     def __init__(self, id='plugin.video.kodiconnect'):
@@ -20,3 +21,13 @@ class Addon(object):
             return os.environ.get('SECRET', '')
         else:
             raise Exception('Unknown setting id')
+
+    def getLocalizedString(self, string_id):
+        with open('./resources/language/English/strings.po', 'r') as f:
+            content = f.read()
+
+            match = re.search('msgctxt "#{}"\nmsgid "(.*)"\n'.format(string_id), content)
+
+            if not match:
+                raise Exception('Didn\'t find string id')
+            return match.group(1)
