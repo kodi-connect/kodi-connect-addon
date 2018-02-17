@@ -14,7 +14,7 @@ def build_title_index(movies, tvshows):
     mapped_entities = {}
     for entity in entities:
         value = entity['title']
-        if not value in mapped_entities:
+        if value not in mapped_entities:
             mapped_entities[value] = []
 
         mapped_entities[value].append(entity)
@@ -43,7 +43,7 @@ def build_collection_index(movies, tvshows):
     for entity in entities:
         if 'set' in entity and entity['set']:
             value = parse_collection(entity['set'])
-            if not value in mapped_entities:
+            if value not in mapped_entities:
                 mapped_entities[value] = []
 
             mapped_entities[value].append(entity)
@@ -67,7 +67,7 @@ def build_genre_index(movies, tvshows):
     mapped_entities = {}
     for entity in entities:
         for genre in entity['genre']:
-            if not genre in mapped_entities:
+            if genre not in mapped_entities:
                 mapped_entities[genre] = []
 
             mapped_entities[genre].append(entity)
@@ -93,7 +93,7 @@ def build_cast_index(movies, tvshows, key):
     for entity in entities:
         for cast in entity['cast']:
             value = cast[key]
-            if not value in mapped_entities:
+            if value not in mapped_entities:
                 mapped_entities[value] = []
 
             mapped_entities[value].append(entity)
@@ -130,6 +130,14 @@ def cross_section(results):
                 entities_union.append((entity, score))
 
     return entities_union
+
+def filter_by_media_type(entities, media_type):
+    if media_type == 'movie':
+        return [(entity, score) for entity, score in entities if 'movieid' in entity]
+    elif media_type == 'tv show':
+        return [(entity, score) for entity, score in entities if 'tvshowid' in entity]
+
+    return entities
 
 class LibraryIndex(object):
     def __init__(self, compose_index):
@@ -179,10 +187,8 @@ class LibraryIndex(object):
 
         entities = cross_section(results)
 
-        import ipdb; ipdb.set_trace()
-        # TODO - filter by mediaType
-
-        entities = entities[(entity, score) for entity, score in entities if entity['']]
+        if 'mediaType' in video_filter:
+            entities = filter_by_media_type(entities, video_filter['mediaType'])
 
         logger.debug('Indexed find by filter took {} ms'.format(int((time.time() - start) * 1000)))
 

@@ -1,11 +1,11 @@
 # pylint: disable=no-self-use
 
 import os
-import time
 
 from connect import kodi_rpc, filtering, strings, logger
 from connect.utils import notification, _get, _pick
 from connect.library_index import create_library_index
+from connect.fuzzy_filter import fuzzy_filter
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)
@@ -129,35 +129,14 @@ class KodiInterface(object):
             logger.debug('current_item: {}'.format(current_item))
             self.current_item = current_item
 
-    def fuzzy_filter(self, video_filter):
-        start = time.time()
-
-        movies, tvshows = self._get_video_library()
-
-        entities = []
-        if 'mediaType' in video_filter and video_filter['mediaType'] and video_filter['mediaType'] != 'movie':
-            pass
-        else:
-            entities = entities + movies
-
-        if 'mediaType' in video_filter and video_filter['mediaType'] and video_filter['mediaType'] != 'tv show':
-            pass
-        else:
-            entities = entities + tvshows
-
-        filtered_entities = filtering.filter_entities(video_filter, entities)
-
-        logger.debug('Fuzzy filter took {} ms'.format(int((time.time() - start) * 1000)))
-
-        return filtered_entities
-
     def find_entities(self, video_filter):
         if self.disable_ngram_index is True:
-            return self.fuzzy_filter(video_filter)
+            movies, tvshows = self._get_video_library()
+            return fuzzy_filter(movies, tvshows, video_filter)
 
         return self.library_index.find_by_filter(video_filter)
 
-    def fuzzy_find_and_play(self, video_filter):
+    def find_and_play(self, video_filter):
         filtered_entities = self.find_entities(video_filter)
 
         entity = filtering.get_best_match(filtered_entities)
@@ -177,11 +156,8 @@ class KodiInterface(object):
 
         return True
 
-    def find_and_play(self, video_filter):
-        return self.fuzzy_find_and_play(video_filter)
-
     def find_and_display(self, video_filter):
-        filtered_entities = self.fuzzy_filter(video_filter)
+        filtered_entities = self.find_entities(video_filter)
 
         if not filtered_entities:
             notification(strings.NOTHING_FOUND)
