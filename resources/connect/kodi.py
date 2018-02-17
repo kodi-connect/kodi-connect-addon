@@ -258,6 +258,24 @@ class KodiInterface(object):
         kodi_rpc.small_skip_forward()
         return True
 
+    def set_volume(self, volume):
+        kodi_rpc.set_volume(volume)
+        return True
+
+    def adjust_volume(self, volume):
+        current_volume = kodi_rpc.get_volume()
+        logger.debug('Current volume: {}'.format(current_volume))
+
+        new_volume = max(min(current_volume + volume, 100), 0)
+        logger.debug('Adjusting volume to: {}'.format(new_volume))
+
+        kodi_rpc.set_volume(new_volume)
+        return True
+
+    def set_mute(self, mute):
+        kodi_rpc.set_mute(mute)
+        return True
+
     def turnon(self):
         kodi_rpc.turn_on()
         return True

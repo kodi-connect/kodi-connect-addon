@@ -225,6 +225,42 @@ def seek_to_percentage(playerid, percentage):
 
     return _get(res, 'result')
 
+def set_volume(volume):
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Application.SetVolume",
+        "params": {
+            "volume": volume,
+        },
+        "id": 1,
+    })
+
+    return _get(res, 'result')
+
+def get_volume():
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Application.GetProperties",
+        "params": {
+            "properties": ["volume"],
+        },
+        "id": 1,
+    })
+
+    return _get(res, 'result', 'volume')
+
+def set_mute(mute):
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Application.SetMute",
+        "params": {
+            "mute": mute,
+        },
+        "id": 1,
+    })
+
+    return _get(res, 'result')
+
 def execute_addon(params):
     res = _kodi_rpc({
         "jsonrpc": "2.0",
