@@ -1,6 +1,10 @@
 # pylint: disable=no-self-use
 
 import os
+from concurrent import futures
+
+from tornado.ioloop import IOLoop
+from tornado.concurrent import run_on_executor
 
 from connect import kodi_rpc, filtering, strings, logger
 from connect.utils import notification, _get, _pick
@@ -97,6 +101,8 @@ def get_display_entities(entities):
     return 'x'.join(display_entities)
 
 class KodiInterface(object):
+    executor = futures.ThreadPoolExecutor(max_workers=1)
+
     def __init__(self, library_cache):
         self.library_cache = library_cache
         self.library_index = None
@@ -107,6 +113,12 @@ class KodiInterface(object):
         movies, tvshows = self.library_cache.get_library()
 
         return movies, tvshows
+
+    @run_on_executor
+    def _update_library_index(self, movies, tvshows):
+        library_index = create_library_index(movies, tvshows)
+        self.library_index = library_index
+        logger.debug('Updated library index')
 
     def set_disable_ngram_index(self, disable_ngram_index):
         self.disable_ngram_index = disable_ngram_index
@@ -121,7 +133,8 @@ class KodiInterface(object):
             tvshows = kodi_rpc.get_tv_shows()
             logger.debug('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
             self.library_cache.set_library(movies, tvshows)
-            self.library_index = create_library_index(movies, tvshows)
+            # self.library_index = create_library_index(movies, tvshows)
+            self._update_library_index(movies, tvshows)
 
     def update_current_item(self):
         current_item = get_current_item()

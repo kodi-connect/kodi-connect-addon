@@ -2,7 +2,7 @@
 
 import unittest
 
-from test_util import run_one
+from test_util import run_one, wait_for_library_index
 from connect.kodi import KodiInterface
 from connect.library_cache import LibraryCache
 from connect.custom_player import CustomPlayer
@@ -13,6 +13,7 @@ class TestPlaybackControl(unittest.TestCase):
         library_cache = LibraryCache()
         self.kodi = KodiInterface(library_cache)
         self.kodi.update_cache()
+        wait_for_library_index(self.kodi)
         self.player = CustomPlayer()
         self.player.set_kodi(self.kodi)
         self.handler = Handler(self.kodi)
