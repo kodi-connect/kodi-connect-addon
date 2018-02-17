@@ -2,7 +2,6 @@
 
 import unittest
 
-from test_util import wait_for_library_index
 from connect.kodi import KodiInterface
 from connect.library_cache import LibraryCache
 from connect.handler import Handler

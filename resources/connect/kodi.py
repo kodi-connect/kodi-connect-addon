@@ -3,7 +3,6 @@
 import os
 from concurrent import futures
 
-from tornado.ioloop import IOLoop
 from tornado.concurrent import run_on_executor
 
 from connect import kodi_rpc, filtering, strings, logger
