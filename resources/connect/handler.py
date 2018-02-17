@@ -19,10 +19,10 @@ def capabilities_handler():
             "interface": "Alexa.Speaker",
             "version": "3",
             "properties": {
-                "supported": [{"name": "volume"},{"name": "muted"}],
+                "supported": [{"name": "volume"}, {"name": "muted"}],
                 "proactivelyReported": True,
                 "retrievable": True,
-            }
+            },
         },
     ]
 
