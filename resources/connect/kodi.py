@@ -1,9 +1,11 @@
 # pylint: disable=no-self-use
 
+import os
 import time
 
 from connect import kodi_rpc, filtering, strings, logger
 from connect.utils import notification, _get, _pick
+from connect.library_index import create_library_index
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)
@@ -99,11 +101,15 @@ class KodiInterface(object):
         self.library_cache = library_cache
         self.library_index = None
         self.current_item = None
+        self.disable_ngram_index = 'DISABLE_NGRAM_INDEX' in os.environ
 
     def _get_video_library(self):
         movies, tvshows = self.library_cache.get_library()
 
         return movies, tvshows
+
+    def set_disable_ngram_index(self, disable_ngram_index):
+        self.disable_ngram_index = disable_ngram_index
 
     def invalidate_cache(self):
         self.library_cache.invalidate()
@@ -115,6 +121,7 @@ class KodiInterface(object):
             tvshows = kodi_rpc.get_tv_shows()
             logger.debug('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
             self.library_cache.set_library(movies, tvshows)
+            self.library_index = create_library_index(movies, tvshows)
 
     def update_current_item(self):
         current_item = get_current_item()
@@ -144,8 +151,14 @@ class KodiInterface(object):
 
         return filtered_entities
 
+    def find_entities(self, video_filter):
+        if self.disable_ngram_index is True:
+            return self.fuzzy_filter(video_filter)
+
+        return self.library_index.find_by_filter(video_filter)
+
     def fuzzy_find_and_play(self, video_filter):
-        filtered_entities = self.fuzzy_filter(video_filter)
+        filtered_entities = self.find_entities(video_filter)
 
         entity = filtering.get_best_match(filtered_entities)
         logger.debug('Found Entity {}'.format(str(entity)))

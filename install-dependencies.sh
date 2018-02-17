@@ -12,7 +12,7 @@ virtualenv "${tmpdir}"
 pushd "${tmpdir}"
 source "${tmpdir}/bin/activate"
 
-pip install tornado fuzzywuzzy
+pip install tornado fuzzywuzzy ngram
 
 venv_libs=$(file "${tmpdir}/lib/python"*"/site-packages" | cut -d: -f1)
 
@@ -26,6 +26,7 @@ rm -r "${venv_libs}/tornado/test"
 find  "${venv_libs}/tornado" -name '*.so' -exec rm -v "{}" \;
 cp -r "${venv_libs}/tornado" "${lib_dir}"
 cp -r "${venv_libs}/fuzzywuzzy" "${lib_dir}"
+cp    "${venv_libs}/ngram.py" "${lib_dir}"
 
 ls -l "${lib_dir}"
 

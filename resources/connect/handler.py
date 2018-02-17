@@ -81,8 +81,7 @@ class Handler(object):
         logger.debug('turnoff_handler')
         IOLoop.instance().add_callback(self.kodi.turnoff)
 
-# pylint: disable=too-many-branches
-
+    # pylint: disable=too-many-branches
     def handler(self, data):
         logger.debug('handler data: {}'.format(str(data)))
         response_data = {'status': 'ok'}
