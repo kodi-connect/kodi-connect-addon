@@ -113,6 +113,38 @@ def stop_player(playerid):
 
     return res
 
+def seek_player(playerid, seconds):
+    if not playerid:
+        return None
+
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Player.Seek",
+        "id": 1,
+        'params': {
+            'playerid': playerid,
+            "value": {"seconds": seconds},
+        },
+    })
+
+    return res
+
+def get_player_time(playerid):
+    if not playerid:
+        return None
+
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Player.GetProperties",
+        "id": 1,
+        'params': {
+            'playerid': playerid,
+            "properties": ["time"],
+        },
+    })
+
+    return res
+
 def small_skip_backwards():
     xbmc.executebuiltin('PlayerControl(SmallSkipBackward)')
 

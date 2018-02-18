@@ -83,6 +83,10 @@ class Handler(object):
         logger.debug('fastforward_handler')
         IOLoop.instance().add_callback(self.kodi.fastforward)
 
+    def seek_handler(self, delta_position):
+        logger.debug('seek_handler: {}'.format(delta_position))
+        IOLoop.instance().add_callback(self.kodi.seek, delta_position)
+
     def set_volume_handler(self, volume):
         logger.debug('set_volume_handler: {}'.format(volume))
         IOLoop.instance().add_callback(self.kodi.set_volume, volume)
@@ -128,6 +132,8 @@ class Handler(object):
                 self.rewind_handler()
             elif data['commandType'] == 'fastForward':
                 self.fastforward_handler()
+            elif data['commandType'] == 'seek':
+                self.seek_handler(data.get('deltaPosition', 0))
             elif data['commandType'] == 'setVolume':
                 self.set_volume_handler(data.get('volume', 0))
             elif data['commandType'] == 'adjustVolume':

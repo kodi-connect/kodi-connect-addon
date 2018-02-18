@@ -50,6 +50,24 @@ def get_current_item():
 
     return None
 
+def convert_time_to_milliseconds(time):
+    milliseconds = 0
+    milliseconds += time['hours'] * 1000 * 60 * 60
+    milliseconds += time['minutes'] * 1000 * 60
+    milliseconds += time['seconds'] * 1000
+    milliseconds += time['milliseconds']
+    return milliseconds
+
+def get_player_time():
+    player_id = kodi_rpc.get_active_playerid()
+    if not player_id:
+        return None
+
+    time = kodi_rpc.get_player_time(player_id)
+    milliseconds = convert_time_to_milliseconds(time)
+
+    return milliseconds
+
 def play_movie(movie):
     logger.debug('Playing movie: {}'.format(movie['title']))
     kodi_rpc.play_movieid(movie['movieid'])
@@ -256,6 +274,11 @@ class KodiInterface(object):
 
     def fastforward(self):
         kodi_rpc.small_skip_forward()
+        return True
+
+    def seek(self, delta_position):
+        playerid = kodi_rpc.get_active_playerid()
+        kodi_rpc.seek_player(playerid, delta_position)
         return True
 
     def set_volume(self, volume):
