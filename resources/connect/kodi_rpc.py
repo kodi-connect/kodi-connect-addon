@@ -261,6 +261,18 @@ def set_mute(mute):
 
     return _get(res, 'result')
 
+def get_muted():
+    res = _kodi_rpc({
+        "jsonrpc": "2.0",
+        "method": "Application.GetProperties",
+        "params": {
+            "properties": ["muted"],
+        },
+        "id": 1,
+    })
+
+    return _get(res, 'result', 'muted')
+
 def execute_addon(params):
     res = _kodi_rpc({
         "jsonrpc": "2.0",
