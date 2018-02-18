@@ -279,7 +279,9 @@ class KodiInterface(object):
     def seek(self, delta_position):
         playerid = kodi_rpc.get_active_playerid()
         kodi_rpc.seek_player(playerid, delta_position)
-        return True
+        time = kodi_rpc.get_player_time(playerid)
+        milliseconds = convert_time_to_milliseconds(time)
+        return milliseconds
 
     def set_volume(self, volume):
         kodi_rpc.set_volume(volume)
