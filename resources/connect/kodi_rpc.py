@@ -4,7 +4,7 @@ import xbmc
 from connect.utils import _get
 
 def _kodi_rpc(obj):
-    return json.loads(xbmc.executeJSONRPC(json.dumps(obj)))
+    return json.loads(xbmc.executeJSONRPC(json.dumps(obj)).decode('utf-8'))
 
 def get_movies():
     res = _kodi_rpc({
