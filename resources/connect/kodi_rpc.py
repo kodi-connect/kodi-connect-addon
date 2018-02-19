@@ -15,7 +15,7 @@ def get_movies():
             'properties': ['title', 'genre', 'cast', 'set']
         }
     })
-    return _get(res, 'result', 'movies')
+    return _get(res, 'result', 'movies') or []
 
 def get_movie_details(movieid):
     res = _kodi_rpc({
@@ -38,7 +38,7 @@ def get_tv_shows():
             'properties': ['title', 'genre', 'cast']
         }
     })
-    return _get(res, 'result', 'tvshows')
+    return _get(res, 'result', 'tvshows') or []
 
 def get_tvshow_details(tvshowid):
     res = _kodi_rpc({
