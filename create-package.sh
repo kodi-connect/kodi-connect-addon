@@ -33,3 +33,5 @@ zip -r "${package_filepath}" .
 popd
 
 rm -r "${tmpdir}"
+
+echo "Created package: ${package_filepath}"

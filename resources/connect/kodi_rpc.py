@@ -143,7 +143,7 @@ def get_player_time(playerid):
         },
     })
 
-    return res
+    return _get(res, 'result', 'time')
 
 def small_skip_backwards():
     xbmc.executebuiltin('PlayerControl(SmallSkipBackward)')

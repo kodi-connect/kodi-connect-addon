@@ -16,6 +16,11 @@ def capabilities_handler():
         },
         {
             "type": "AlexaInterface",
+            "interface": "Alexa.SeekController",
+            "version": "3"
+        },
+        {
+            "type": "AlexaInterface",
             "interface": "Alexa.Speaker",
             "version": "3",
             "properties": {
