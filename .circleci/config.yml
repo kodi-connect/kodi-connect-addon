@@ -37,3 +37,9 @@ jobs:
       - run:
           name: Run tests
           command: python -m unittest discover -s tests/
+
+      - run:
+          name: Run Fuzzy tests
+          environment:
+            DISABLE_NGRAM_INDEX: "1"
+          command: python -m unittest discover -s tests/
