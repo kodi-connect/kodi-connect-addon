@@ -1,9 +1,10 @@
-# pylint: disable=broad-except,wrong-import-position
+# pylint: disable=bare-except,wrong-import-position
 
 import sys
 import os
 import json
 import threading
+import traceback
 import logging
 from logging.config import dictConfig
 import xbmc
@@ -101,8 +102,8 @@ class Client(object):
             request = HTTPRequest(self.url, auth_username=email, auth_password=secret)
 
             self.websocket = yield websocket_connect(request)
-        except Exception as ex:
-            logger.debug('connection error: {}'.format(str(ex)))
+        except:
+            logger.debug('connection error: {}'.format(traceback.format_exc()))
             self.websocket = None
             notification(strings.FAILED_TO_CONNECT, level='error', tag='connection')
         else:
@@ -128,8 +129,8 @@ class Client(object):
                 data = message['data']
 
                 response_data = self.handler.handler(data)
-            except Exception as ex:
-                logger.error('Handler failed: {}'.format(str(ex)))
+            except:
+                logger.error('Handler failed: {}'.format(traceback.format_exc()))
                 response_data = {"status": "error", "error": "Unknown error"}
 
             self.websocket.write_message(json.dumps({"correlationId": message['correlationId'], "data": response_data}))
@@ -144,8 +145,8 @@ class Client(object):
 
         try:
             self.kodi.update_cache()
-        except Exception as ex:
-            logger.error('Failed to update Kodi library: {}'.format(str(ex)))
+        except:
+            logger.error('Failed to update Kodi library: {}'.format(traceback.format_exc()))
 
 class ClientThread(threading.Thread):
     """Background thread for Client"""

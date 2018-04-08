@@ -18,7 +18,6 @@ venv_libs=$(file "${tmpdir}/lib/python"*"/site-packages" | cut -d: -f1)
 
 ls -l "${venv_libs}"
 
-cp -r "${venv_libs}/certifi" "${lib_dir}"
 cp -r "${venv_libs}/six.py" "${lib_dir}"
 cp    "${venv_libs}/singledispatch.py" "${venv_libs}/singledispatch_helpers.py" "${lib_dir}"
 cp    "${venv_libs}/backports_abc.py" "${lib_dir}"

@@ -146,8 +146,8 @@ class KodiInterface(object):
     def update_cache(self):
         if self.library_cache.is_dirty():
             logger.debug('Updating library cache')
-            movies = kodi_rpc.get_movies()
-            tvshows = kodi_rpc.get_tv_shows()
+            movies = kodi_rpc.get_movies() or []
+            tvshows = kodi_rpc.get_tv_shows() or []
             logger.debug('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
             self.library_cache.set_library(movies, tvshows)
             # self.library_index = create_library_index(movies, tvshows)

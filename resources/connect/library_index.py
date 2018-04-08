@@ -177,7 +177,9 @@ class LibraryIndex(object):
         if 'titles' in video_filter and video_filter['titles']:
             results.append(self._find_by_values(video_filter['titles'], 'title'))
         if 'collections' in video_filter and video_filter['collections']:
-            results.append(self._find_by_values(video_filter['collections'], 'collection'))
+            title_matches = self._find_by_values(video_filter['collections'], 'title')
+            collection_matches = self._find_by_values(video_filter['collections'], 'collection')
+            results.append(list(itertools.chain.from_iterable([title_matches, collection_matches])))
         if 'genres' in video_filter and video_filter['genres']:
             results.append(self._find_by_values(video_filter['genres'], 'genre'))
         if 'actors' in video_filter and video_filter['actors']:
@@ -208,8 +210,8 @@ def create_library_index(movies, tvshows):
     actor_name_ix, mapped_actor_names = build_cast_index(movies, tvshows, 'name')
 
     index = {
-        'title': {'ix': title_ix, 'map': mapped_titles, 'threshold': 0.2},
-        'collection': {'ix': collection_ix, 'map': mapped_collections, 'threshold': 0.7},
+        'title': {'ix': title_ix, 'map': mapped_titles, 'threshold': 0.4},
+        'collection': {'ix': collection_ix, 'map': mapped_collections, 'threshold': 0.4},
         'genre': {'ix': genre_ix, 'map': mapped_genres, 'threshold': 0.8},
         'role': {'ix': role_ix, 'map': mapped_roles, 'threshold': 0.8},
         'actor': {'ix': actor_name_ix, 'map': mapped_actor_names, 'threshold': 0.85},
