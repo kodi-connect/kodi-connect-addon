@@ -8,7 +8,7 @@ RUN apt-get update && \
   touch /usr/bin/cec-client && chmod +x /usr/bin/cec-client && \
   useradd -m python && \
   mkdir -p $HOME/app && \
-  chown -R python:python $HOME/app
+  chown -R python:python $HOME
 
 WORKDIR $HOME/app
 
