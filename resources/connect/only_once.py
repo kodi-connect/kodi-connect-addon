@@ -14,6 +14,9 @@ class OnlyOnce(object):
         except socket.error:
             raise OnlyOnceException()
 
+    def stop(self):
+        self.tcp_server.stop()
+
     def __del__(self):
         if self.tcp_server is not None:
             self.tcp_server.stop()

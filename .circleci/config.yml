@@ -43,3 +43,7 @@ jobs:
           environment:
             DISABLE_NGRAM_INDEX: "1"
           command: python -m unittest discover -s tests/
+
+      - run:
+          name: Create package
+          command: ./create-package.sh

@@ -64,6 +64,7 @@ dictConfig(__logging_config__)
 class Client(object):
     """Kodi Connect Websocket Connection"""
     def __init__(self, url, kodi, handler):
+        self.ioloop = None
         self.url = url
         self.websocket = None
         self.connected = False
@@ -76,17 +77,24 @@ class Client(object):
 
     def start(self):
         """Start IO loop and try to connect to the server"""
+        self.ioloop = IOLoop.current()
+
         self.connect()
         self.periodic.start()
-        IOLoop.current().start()
+        logger.debug('Starting IOLoop')
+        self.ioloop.start()
+        logger.debug('IOLoop ended')
 
     def stop(self):
         """Stop IO loop"""
         self.should_stop = True
         if self.websocket is not None:
             self.websocket.close()
+            logger.debug('Websocket closed')
         self.periodic.stop()
-        IOLoop.current().stop()
+        logger.debug('Periodic stopped')
+        self.ioloop.stop()
+        logger.debug('IOLoop stopped')
 
     @gen.coroutine
     def connect(self):
@@ -161,6 +169,7 @@ class ClientThread(threading.Thread):
         """Stop client"""
         logger.debug('Stopping client')
         self.client.stop()
+        logger.debug('Client stopped')
 
 def main():
     """Main function"""
@@ -195,11 +204,19 @@ def main():
     except KeyboardInterrupt:
         logger.debug('Interrupted')
 
+    logger.debug('Stopping __once__')
+    __once__.stop()
     logger.debug('Stopping Tunnel')
     client_thread.stop()
     logger.debug('Joining Tunnel Thread')
     client_thread.join()
     logger.debug('Exit')
+
+def debug_signal_handler(signal, frame):
+    import pdb
+    pdb.set_trace()
+import signal
+signal.signal(signal.SIGINT, debug_signal_handler)
 
 if __name__ == '__main__':
     main()

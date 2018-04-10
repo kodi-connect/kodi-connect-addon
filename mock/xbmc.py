@@ -87,16 +87,23 @@ class Player(object):
     def onPlayBackStarted(self):
         pass
 
+abort_file_path = '/tmp/abort'
+
 class Monitor(object):
     def __init__(self):
         print('[XBMC] Creating Monitor')
 
     def abortRequested(self):
-        return False
+        should_abort = os.path.isfile(abort_file_path)
+        if should_abort:
+            os.remove(abort_file_path)
+        return should_abort
 
     def waitForAbort(self, seconds):
+        if self.abortRequested():
+            return True
         time.sleep(seconds)
-        return False
+        return self.abortRequested()
 
 def executeJSONRPC(request_str):
     request = json.loads(request_str)
