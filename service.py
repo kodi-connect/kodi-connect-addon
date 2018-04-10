@@ -212,11 +212,5 @@ def main():
     client_thread.join()
     logger.debug('Exit')
 
-def debug_signal_handler(signal, frame):
-    import pdb
-    pdb.set_trace()
-import signal
-signal.signal(signal.SIGINT, debug_signal_handler)
-
 if __name__ == '__main__':
     main()
