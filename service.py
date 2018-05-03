@@ -1,4 +1,4 @@
-# pylint: disable=bare-except,wrong-import-position
+# pylint: disable=bare-except,wrong-import-position,wrong-import-order
 
 import sys
 import os
@@ -19,6 +19,7 @@ LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('pat
 sys.path.append(RESOURCES_PATH)
 sys.path.append(LIB_RESOURCES_PATH)
 
+import concurrent
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
 from tornado.websocket import websocket_connect
@@ -84,6 +85,7 @@ class Client(object):
         logger.debug('Starting IOLoop')
         self.ioloop.start()
         logger.debug('IOLoop ended')
+        IOLoop.clear_current()
 
     def stop(self):
         """Stop IO loop"""
@@ -210,6 +212,10 @@ def main():
     client_thread.stop()
     logger.debug('Joining Tunnel Thread')
     client_thread.join()
+    logger.debug('Clearing main IOLoop')
+    IOLoop.clear_current()
+    logger.debug('Stopping concurrent ThreadPool')
+    concurrent.futures.thread._python_exit()  # pylint: disable=protected-access
     logger.debug('Exit')
 
 if __name__ == '__main__':

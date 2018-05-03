@@ -1,4 +1,4 @@
-# eslint: disable=duplicate-code
+# pylint: disable=duplicate-code
 
 import unittest
 
