@@ -22,9 +22,17 @@ jobs:
           name: Install Test dependencies
           command: sudo pip install pylint flake8
 
+      - restore_cache:
+          key: dependencies-{{ checksum "install-dependencies.sh" }}
+
       - run:
           name: Install dependencies
           command: ./install-dependencies.sh
+
+      - save_cache:
+          key: dependencies-{{ checksum "install-dependencies.sh" }}
+          paths:
+            - "~/.cache/pip"
 
       - run:
           name: Run Linter

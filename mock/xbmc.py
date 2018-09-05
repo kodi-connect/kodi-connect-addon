@@ -70,21 +70,34 @@ class Player(object):
             if self.speed == 0:
                 print('[XBMC] Resuming player')
                 self.speed = 1
+                self.onPlayBackStarted()
             else:
                 print('[XBMC] Pausing player')
                 self.speed = 0
+                self.onPlayBackPaused()
+
         else:
             print('[XBMC] No source to play')
 
     def _stop(self):
+        print('[XBMC] Stopping player')
         self.current_item = None
         self.speed = 0
-        print('[XBMC] Stopping player')
+        self.onPlayBackStopped()
 
     def _get_current_item(self):
         return self.current_item
 
+    def _is_active(self):
+        return self.current_item is not None
+
     def onPlayBackStarted(self):
+        pass
+
+    def onPlayBackPaused(self):
+        pass
+
+    def onPlayBackStopped(self):
         pass
 
 abort_file_path = '/tmp/abort'
@@ -118,7 +131,10 @@ def executeJSONRPC(request_str):
         kodi_player._play(request['params'])
         return json.dumps({})
     elif request['method'] == 'Player.GetActivePlayers':
-        return json.dumps({ 'result': [{ 'type': 'video', 'playerid': 1 }]})
+        players = []
+        if kodi_player._is_active():
+            players = [{ 'type': 'video', 'playerid': 1 }]
+        return json.dumps({'result': players})
     elif request['method'] == 'Player.GetProperties':
         return json.dumps({ 'result': { 'speed': kodi_player.speed }})
     elif request['method'] == 'Player.PlayPause':

@@ -1,6 +1,7 @@
 import itertools
 import time
 import re
+
 from ngram import NGram
 
 from connect import logger
@@ -22,9 +23,7 @@ def build_title_index(movies, tvshows):
     logger.debug('Iterating title took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram()
-    for value in values:
-        index.add(value)
+    index = NGram(items=values, key=lambda x: x.lower())
     logger.debug('Building title index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -51,9 +50,7 @@ def build_collection_index(movies, tvshows):
     logger.debug('Iterating collection took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram()
-    for value in values:
-        index.add(value)
+    index = NGram(items=values, key=lambda x: x.lower())
     logger.debug('Building collection index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -75,9 +72,7 @@ def build_genre_index(movies, tvshows):
     logger.debug('Iterating genre took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram()
-    for value in values:
-        index.add(value)
+    index = NGram(items=values, key=lambda x: x.lower())
     logger.debug('Building genre index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -101,9 +96,7 @@ def build_cast_index(movies, tvshows, key):
     logger.debug('Iterating {} took {} ms'.format(key, int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram()
-    for value in values:
-        index.add(value)
+    index = NGram(items=values, key=lambda x: x.lower())
     logger.debug('Building {} index took {} ms'.format(key, int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -117,17 +110,18 @@ def remove_duplicates(entities):
     return filtered_entities
 
 def cross_section(results):
-    first = results[0]
-    rest = results[1:]
+    if len(results) < 1:
+        return []
 
-    if not rest:
-        return first
+    def cross_section_results(list_a, list_b):
+        return [
+            a_entity_with_score
+            for a_entity_with_score
+            in list_a
+            if any([b_entity_with_score[0] == a_entity_with_score[0] for b_entity_with_score in list_b])
+        ]
 
-    entities_union = []
-    for entity, score in first:
-        for result in rest:
-            if any(u_score for u_entity, u_score in result if u_entity == entity):
-                entities_union.append((entity, score))
+    entities_union = reduce(cross_section_results, results)
 
     return entities_union
 
@@ -140,7 +134,9 @@ def filter_by_media_type(entities, media_type):
     return entities
 
 class LibraryIndex(object):
-    def __init__(self, compose_index):
+    def __init__(self, movies, tvshows, compose_index):
+        self.movies = movies
+        self.tvshows = tvshows
         self.compose_index = compose_index
 
     def _find_by(self, filter_value, value_type):
@@ -148,7 +144,7 @@ class LibraryIndex(object):
         value_map = self.compose_index[value_type]['map']
         threshold = self.compose_index[value_type]['threshold']
 
-        similar_values = index.search(filter_value)
+        similar_values = index.search(filter_value.lower())
         similar_values = [(value, score) for value, score in similar_values if score > threshold]
         logger.debug(similar_values)
 
@@ -170,6 +166,13 @@ class LibraryIndex(object):
 
         return remove_duplicates(matched_entities)
 
+    def _get_entities(self, media_type):
+        if media_type == 'movie':
+            return self.movies
+        elif media_type == 'tv show':
+            return self.tvshows
+        return []
+
     def find_by_filter(self, video_filter):
         start = time.time()
 
@@ -190,7 +193,10 @@ class LibraryIndex(object):
         entities = cross_section(results)
 
         if 'mediaType' in video_filter:
-            entities = filter_by_media_type(entities, video_filter['mediaType'])
+            if len(results) < 1:
+                entities = [(entity, 1.0) for entity in self._get_entities(video_filter['mediaType'])]
+            else:
+                entities = filter_by_media_type(entities, video_filter['mediaType'])
 
         logger.debug('Indexed find by filter took {} ms'.format(int((time.time() - start) * 1000)))
 
@@ -217,4 +223,4 @@ def create_library_index(movies, tvshows):
         'actor': {'ix': actor_name_ix, 'map': mapped_actor_names, 'threshold': 0.85},
     }
 
-    return LibraryIndex(index)
+    return LibraryIndex(movies, tvshows, index)

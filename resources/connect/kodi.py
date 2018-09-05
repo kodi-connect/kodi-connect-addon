@@ -1,14 +1,17 @@
 # pylint: disable=no-self-use
 
 import os
+import time
 from concurrent import futures
 
 from tornado.concurrent import run_on_executor
 
-from connect import kodi_rpc, filtering, strings, logger
+from connect import kodi_rpc, filtering, strings, utils, logger
 from connect.utils import notification, _get, _pick
 from connect.library_index import create_library_index
 from connect.fuzzy_filter import fuzzy_filter
+
+ADDON_CHANGE_THRESHOLD = 2 # seconds
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)
@@ -50,12 +53,12 @@ def get_current_item():
 
     return None
 
-def convert_time_to_milliseconds(time):
+def convert_time_to_milliseconds(value):
     milliseconds = 0
-    milliseconds += time['hours'] * 1000 * 60 * 60
-    milliseconds += time['minutes'] * 1000 * 60
-    milliseconds += time['seconds'] * 1000
-    milliseconds += time['milliseconds']
+    milliseconds += value['hours'] * 1000 * 60 * 60
+    milliseconds += value['minutes'] * 1000 * 60
+    milliseconds += value['seconds'] * 1000
+    milliseconds += value['milliseconds']
     return milliseconds
 
 def get_player_time():
@@ -63,8 +66,8 @@ def get_player_time():
     if not player_id:
         return None
 
-    time = kodi_rpc.get_player_time(player_id)
-    milliseconds = convert_time_to_milliseconds(time)
+    player_time = kodi_rpc.get_player_time(player_id)
+    milliseconds = convert_time_to_milliseconds(player_time)
 
     return milliseconds
 
@@ -125,6 +128,7 @@ class KodiInterface(object):
         self.library_index = None
         self.current_item = None
         self.disable_ngram_index = 'DISABLE_NGRAM_INDEX' in os.environ
+        self.last_playback_change_at = 0
 
     def _get_video_library(self):
         movies, tvshows = self.library_cache.get_library()
@@ -136,6 +140,9 @@ class KodiInterface(object):
         library_index = create_library_index(movies, tvshows)
         self.library_index = library_index
         logger.debug('Updated library index')
+
+    def _set_last_playback_change_at(self):
+        self.last_playback_change_at = time.time()
 
     def set_disable_ngram_index(self, disable_ngram_index):
         self.disable_ngram_index = disable_ngram_index
@@ -177,9 +184,11 @@ class KodiInterface(object):
             return False
 
         if 'movieid' in entity:
+            self._set_last_playback_change_at()
             play_movie(entity)
         elif 'tvshowid' in entity:
             season, episode = _pick(video_filter, 'season', 'episode')
+            self._set_last_playback_change_at()
             play_tvshow(entity, season, episode)
         else:
             return False
@@ -214,6 +223,7 @@ class KodiInterface(object):
             if tvshow_id and season and episode:
                 next_episode_id = get_next_episode_id(tvshow_id, season, episode)
                 if next_episode_id:
+                    self._set_last_playback_change_at()
                     play_episodeid(next_episode_id)
                     return True
 
@@ -229,6 +239,7 @@ class KodiInterface(object):
             if tvshow_id and season and episode:
                 previous_episode_id = get_previous_episode_id(tvshow_id, season, episode)
                 if previous_episode_id:
+                    self._set_last_playback_change_at()
                     play_episodeid(previous_episode_id)
                     return True
 
@@ -248,6 +259,7 @@ class KodiInterface(object):
         playerid = kodi_rpc.get_active_playerid()
         is_playing = kodi_rpc.is_player_playing(playerid)
 
+        self._set_last_playback_change_at()
         if is_playing:
             play_pause(playerid)
 
@@ -257,6 +269,7 @@ class KodiInterface(object):
         playerid = kodi_rpc.get_active_playerid()
         is_playing = kodi_rpc.is_player_playing(playerid)
 
+        self._set_last_playback_change_at()
         if not is_playing:
             play_pause(playerid)
 
@@ -264,6 +277,7 @@ class KodiInterface(object):
 
     def stop(self):
         playerid = kodi_rpc.get_active_playerid()
+        self._set_last_playback_change_at()
         stop(playerid)
 
         return True
@@ -279,8 +293,8 @@ class KodiInterface(object):
     def seek(self, delta_position):
         playerid = kodi_rpc.get_active_playerid()
         kodi_rpc.seek_player(playerid, delta_position)
-        time = kodi_rpc.get_player_time(playerid)
-        milliseconds = convert_time_to_milliseconds(time)
+        player_time = kodi_rpc.get_player_time(playerid)
+        milliseconds = convert_time_to_milliseconds(player_time)
         return milliseconds
 
     def set_volume(self, volume):
@@ -308,3 +322,26 @@ class KodiInterface(object):
     def turnoff(self):
         kodi_rpc.turn_off()
         return True
+
+    def get_state(self):
+        volume = kodi_rpc.get_volume()
+        muted = kodi_rpc.get_muted()
+
+        player_status = 'stopped'
+        player_id = kodi_rpc.get_active_playerid()
+        if player_id is not None:
+            player_status = 'playing' if kodi_rpc.is_player_playing(player_id) else 'paused'
+
+        state = [
+            {"name": "volume", "value": volume},
+            {"name": "muted", "value": muted},
+            {"name": "player", "value": player_status},
+        ]
+
+        if utils.cec_available():
+            state.append({"name": "power", "value": True})
+
+        return state
+
+    def is_playback_addon_change(self):
+        return time.time() - self.last_playback_change_at < ADDON_CHANGE_THRESHOLD

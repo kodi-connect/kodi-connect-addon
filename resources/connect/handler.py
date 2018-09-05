@@ -1,7 +1,7 @@
 from tornado.ioloop import IOLoop
 from connect import utils, logger
 
-def capabilities_handler():
+def get_alexa_capabilities():
     capabilities = [
         {
             "type": 'AlexaInterface',
@@ -16,6 +16,16 @@ def capabilities_handler():
         },
         {
             "type": "AlexaInterface",
+            "interface": "Alexa.PlaybackStateReporter",
+            "version": "1.0",
+            "properties": {
+                "supported": [{"name": "playbackState"}],
+                "proactivelyReported": True,
+                "retrievable": True,
+            },
+        },
+        {
+            "type": "AlexaInterface",
             "interface": "Alexa.SeekController",
             "version": "3"
         },
@@ -25,7 +35,7 @@ def capabilities_handler():
             "version": "3",
             "properties": {
                 "supported": [{"name": "volume"}, {"name": "muted"}],
-                "proactivelyReported": True,
+                "proactivelyReported": False,
                 "retrievable": True,
             },
         },
@@ -38,7 +48,8 @@ def capabilities_handler():
             "version": "3",
             "properties": {
                 "supported": [{"name": "powerState"}],
-                "proactivelyReported": True,
+                "proactivelyReported": False,
+                "retrievable": True,
             },
         })
 
@@ -152,8 +163,10 @@ class Handler(object):
                 self.turnoff_handler()
             else:
                 response_data = {'status': 'error', 'error': 'unknown_command'}
-        elif data['type'] == 'capabilities':
-            response_data = {"status": "ok", "capabilities": capabilities_handler()}
+        elif data['type'] == 'capabilities' or data['type'] == 'alexa_capabilities':
+            response_data = {"status": "ok", "capabilities": get_alexa_capabilities()}
+        elif data['type'] == 'state':
+            response_data = {"status": "ok", "state": self.kodi.get_state()}
         else:
             response_data = {'status': 'error', 'error': 'unknown_command'}
 
