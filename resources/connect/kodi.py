@@ -11,7 +11,7 @@ from connect.utils import notification, _get, _pick
 from connect.library_index import create_library_index
 from connect.fuzzy_filter import fuzzy_filter
 
-ADDON_CHANGE_THRESHOLD = 2 # seconds
+ADDON_CHANGE_THRESHOLD = 2  # seconds
 
 def get_next_episode_id(tvshow_id, season, episode):
     next_episode_id = kodi_rpc.get_episodeid(tvshow_id, season, episode + 1)

@@ -1,4 +1,4 @@
-# pylint: disable=bare-except,wrong-import-position,wrong-import-order
+# pylint: disable=wrong-import-position,wrong-import-order
 
 import sys
 import os
