@@ -55,7 +55,7 @@ __logging_config__ = dict(
     }
 )
 
-# dictConfig(__logging_config__)
+dictConfig(__logging_config__)
 
 def main():
     """Main function"""
