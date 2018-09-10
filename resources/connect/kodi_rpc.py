@@ -3,8 +3,20 @@ import xbmc
 
 from connect.utils import _get
 
+def _decode(res):
+    if isinstance(res, unicode):
+        return res
+
+    try:
+        return res.decode('utf-8')
+    except UnicodeDecodeError:
+        try:
+            return res.decode('latin1')
+        except UnicodeDecodeError:
+            return res.decode('utf-8', errors='ignore')
+
 def _kodi_rpc(obj):
-    return json.loads(xbmc.executeJSONRPC(json.dumps(obj)).decode('utf-8'))
+    return json.loads(_decode(xbmc.executeJSONRPC(json.dumps(obj))))
 
 def get_movies():
     res = _kodi_rpc({
