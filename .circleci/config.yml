@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/python:2.7
-      - image: tkislan/kodi-simulator
+      - image: tkislan/kodi-simulator:logs
     environment:
         KODI_HOST: http://localhost:8080
     working_directory: ~/app
