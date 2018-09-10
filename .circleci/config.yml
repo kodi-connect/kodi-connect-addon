@@ -4,6 +4,7 @@ jobs:
     docker:
       - image: circleci/python:2.7
       - image: tkislan/kodi-simulator:logs
+        command: /usr/bin/supervisord
     environment:
         KODI_HOST: http://localhost:8080
     working_directory: ~/app
