@@ -2,18 +2,20 @@
 
 import unittest
 
-from test_util import run_one, wait_for_library_index
+from test_util import run_one, get_library_cache_and_index
 from connect.kodi import KodiInterface
-from connect.library_cache import LibraryCache
 from connect.custom_player import CustomPlayer
 from connect.handler import Handler
 
 class TestPlaybackControl(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.library_cache, cls.library_index = get_library_cache_and_index()
+
     def setUp(self):
-        library_cache = LibraryCache()
-        self.kodi = KodiInterface(library_cache)
-        self.kodi.update_cache()
-        wait_for_library_index(self.kodi)
+        self.kodi = KodiInterface(self.library_cache)
+        self.kodi.library_index = self.library_index
+
         self.player = CustomPlayer()
         self.player.set_kodi(self.kodi)
         self.handler = Handler(self.kodi)

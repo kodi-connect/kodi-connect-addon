@@ -2,14 +2,19 @@
 
 import unittest
 
+from test_util import get_library_cache_and_index
 from connect.kodi import KodiInterface
-from connect.library_cache import LibraryCache
 from connect.handler import Handler
 
 class TestHandler(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.library_cache, cls.library_index = get_library_cache_and_index()
+
     def setUp(self):
-        library_cache = LibraryCache()
-        self.kodi = KodiInterface(library_cache)
+        self.kodi = KodiInterface(self.library_cache)
+        self.kodi.library_index = self.library_index
+
         self.handler = Handler(self.kodi)
 
     def test_unknown_type(self):
