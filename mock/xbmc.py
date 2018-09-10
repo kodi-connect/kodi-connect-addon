@@ -17,7 +17,7 @@ def kodi_rpc(request):
     print('[XBMC] Calling kodi rpc')
     query = urllib.urlencode({ 'request': request })
 
-    resp = http.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password')
+    resp = http.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
     return resp.body
 
 def _get_tvshow_by_episodeid(episodeid):
