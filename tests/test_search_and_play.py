@@ -156,5 +156,20 @@ class TestSearchAndPlay(unittest.TestCase):
         self.assertEqual(current_item['type'], 'movie')
         self.assertEqual(current_item['id'], 202)
 
+    def test_search_and_play_movie_by_genre(self):
+        self.handler.handler({
+            "type": "command",
+            "commandType": "searchAndPlay",
+            "filter": {
+                "mediaType": "movie",
+                "genres": ["film de science-fiction", "science fiction", "Science fiction", "Science", "Science & Nature Docs", ]
+            }
+        })
+        run_one()
+
+        current_item = self.player._get_current_item()
+
+        self.assertEqual(current_item['type'], 'movie')
+
 if __name__ == '__main__':
     unittest.main()
