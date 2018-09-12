@@ -9,7 +9,7 @@ def run_one():
     IOLoop.instance().add_callback(lambda: IOLoop.instance().stop())
     IOLoop.instance().start()
 
-def wait_for_library_index(kodi, max_seconds=10):
+def wait_for_library_index(kodi, max_seconds=30):
     start = time.time()
 
     while int(time.time() - start) < max_seconds:
