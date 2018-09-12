@@ -8,8 +8,6 @@ from tornado.httpclient import HTTPClient
 
 KODI_HOST = os.environ['KODI_HOST']
 
-http = HTTPClient()
-
 def _kodi_rpc(obj):
     return json.loads(executeJSONRPC(json.dumps(obj)))
 
@@ -17,7 +15,9 @@ def kodi_rpc(request):
     print('[XBMC] Calling kodi rpc')
     query = urllib.urlencode({ 'request': request })
 
-    resp = http.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
+    http_client = HTTPClient()
+    resp = http_client.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
+    http_client.close()
     return resp.body
 
 def _get_tvshow_by_episodeid(episodeid):
@@ -49,6 +49,22 @@ def _get_item_by_params(params):
         item = _get_tvshow_by_episodeid(params['item']['episodeid'])
 
     return item
+
+class MockApplication(object):
+    def __init__(self):
+        self.muted = False
+        self.volume = 100
+
+    def get_properties(self):
+        return { 'result': { 'volume': self.volume, 'muted': self.muted } }
+
+    def set_volume(self, volume):
+        self.volume = volume
+
+    def set_muted(self, muted):
+        self.muted = muted
+
+mock_application = MockApplication()
 
 kodi_player = None
 
@@ -122,35 +138,46 @@ def executeJSONRPC(request_str):
     request = json.loads(request_str)
     print('[XBMC] executeJSONRPC: {}'.format(str(request)))
 
-    if request['method'].find('Player') != 0:
+    if request['method'].startswith('Player.'):
+        if request['method'] == 'Player.Open':
+            print('[XBMC] Player.Open: {}'.format(str(request)))
+            # TODO - return proper response as if started playback
+            kodi_player._play(request['params'])
+            return json.dumps({})
+        elif request['method'] == 'Player.GetActivePlayers':
+            players = []
+            if kodi_player._is_active():
+                players = [{ 'type': 'video', 'playerid': 1 }]
+            return json.dumps({'result': players})
+        elif request['method'] == 'Player.GetProperties':
+            return json.dumps({ 'result': { 'speed': kodi_player.speed }})
+        elif request['method'] == 'Player.PlayPause':
+            kodi_player._play_pause()
+            return json.dumps({ 'result': 'OK' })
+        elif request['method'] == 'Player.Stop':
+            kodi_player._stop()
+            return json.dumps({ 'result': 'OK' })
+        elif request['method'] == 'Player.GetItem':
+            return json.dumps({
+                "jsonrpc": "2.0",
+                "id": "VideoGetItem",
+                "result": { 'item': kodi_player._get_current_item() },
+            })
+    elif request['method'].startswith('Application.'):
+        if request['method'] == 'Application.GetProperties':
+            return json.dumps(mock_application.get_properties())
+        elif request['method'] == 'Application.SetMute':
+            mock_application.set_muted(request['params']['mute'])
+            return json.dumps({ 'result': 'OK' })
+        elif request['method'] == 'Application.SetVolume':
+            mock_application.set_volume(request['params']['volume'])
+            return json.dumps({ 'result': 'OK' })
+    elif request['method'].startswith('VideoLibrary.'):
         return kodi_rpc(request_str)
 
-    if request['method'] == 'Player.Open':
-        print('[XBMC] Player.Open: {}'.format(str(request)))
-        # TODO - return proper response as if started playback
-        kodi_player._play(request['params'])
-        return json.dumps({})
-    elif request['method'] == 'Player.GetActivePlayers':
-        players = []
-        if kodi_player._is_active():
-            players = [{ 'type': 'video', 'playerid': 1 }]
-        return json.dumps({'result': players})
-    elif request['method'] == 'Player.GetProperties':
-        return json.dumps({ 'result': { 'speed': kodi_player.speed }})
-    elif request['method'] == 'Player.PlayPause':
-        kodi_player._play_pause()
-        return json.dumps({ 'result': 'OK' })
-    elif request['method'] == 'Player.Stop':
-        kodi_player._stop()
-        return json.dumps({ 'result': 'OK' })
-    elif request['method'] == 'Player.GetItem':
-        return json.dumps({
-            "jsonrpc": "2.0",
-            "id": "VideoGetItem",
-            "result": { 'item': kodi_player._get_current_item() },
-        })
-    else:
-        return None
+    print('Invalid request')
+    print(request_str)
+    raise Exception('Invalid request')
 
 def executebuiltin(str):
     print('[XBMC] executebuiltin: {}'.format(str))
