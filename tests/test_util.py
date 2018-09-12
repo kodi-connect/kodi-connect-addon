@@ -16,6 +16,7 @@ def wait_for_library_index(kodi, max_seconds=30):
         if kodi.library_index is not None:
             return
         time.sleep(0.1)
+        run_one()
 
     raise Exception("Library index not created")
 
