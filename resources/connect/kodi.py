@@ -137,6 +137,7 @@ class KodiInterface(object):
 
     @run_on_executor
     def _update_library_index(self, movies, tvshows):
+        logger.debug('Updating library index')
         library_index = create_library_index(movies, tvshows)
         self.library_index = library_index
         logger.debug('Updated library index')
