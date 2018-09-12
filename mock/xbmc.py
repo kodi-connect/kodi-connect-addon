@@ -174,6 +174,10 @@ def executeJSONRPC(request_str):
             return json.dumps({ 'result': 'OK' })
     elif request['method'].startswith('VideoLibrary.'):
         return kodi_rpc(request_str)
+    elif request['method'].startswith('Addons.'):
+        print('Addons RPC')
+        print(request_str)
+        return json.dumps({ 'result': 'OK' })
 
     print('Invalid request')
     print(request_str)
