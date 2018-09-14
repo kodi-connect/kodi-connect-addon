@@ -95,9 +95,6 @@ class Tunnel(object):
                 logger.debug('Connection closed')
                 self.websocket = None
                 notification(strings.DISCONNECTED, level='warn', tag='connection')
-                self.ioloop.call_later(1, self.periodic_callback)
-                self.ioloop.call_later(3, self.periodic_callback)
-                self.ioloop.call_later(5, self.periodic_callback)
                 break
 
             message = json.loads(message_str)
