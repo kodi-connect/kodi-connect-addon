@@ -62,6 +62,9 @@ class Tunnel(object):
     @gen.coroutine
     def connect(self):
         """Connect to the server and update connection to websocket"""
+        if self.websocket is not None:
+            return
+
         email = __addon__.getSetting('email')
         secret = __addon__.getSetting('secret')
         if not email or not secret:
