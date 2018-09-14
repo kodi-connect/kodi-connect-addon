@@ -121,14 +121,16 @@ def get_display_entities(entities):
     return 'x'.join(display_entities)
 
 class KodiInterface(object):
-    executor = futures.ThreadPoolExecutor(max_workers=1)
-
     def __init__(self, library_cache):
         self.library_cache = library_cache
         self.library_index = None
         self.current_item = None
         self.disable_ngram_index = 'DISABLE_NGRAM_INDEX' in os.environ
         self.last_playback_change_at = 0
+        self.executor = futures.ThreadPoolExecutor(max_workers=1)
+
+    def __del__(self):
+        self.executor.shutdown()
 
     def _get_video_library(self):
         movies, tvshows = self.library_cache.get_library()
