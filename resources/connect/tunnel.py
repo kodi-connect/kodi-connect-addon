@@ -20,6 +20,7 @@ class Tunnel(object):
         self.ioloop = None
         self.url = url
         self.websocket = None
+        self.connecting = False
         self.connected = False
         self.should_stop = False
 
@@ -62,7 +63,7 @@ class Tunnel(object):
     @gen.coroutine
     def connect(self):
         """Connect to the server and update connection to websocket"""
-        if self.websocket is not None:
+        if self.websocket is not None or self.connecting:
             return
 
         email = __addon__.getSetting('email')
@@ -72,6 +73,7 @@ class Tunnel(object):
             return
 
         logger.debug('trying to connect')
+        self.connecting = True
         try:
             request = HTTPRequest(self.url, auth_username=email, auth_password=secret)
 
@@ -85,6 +87,8 @@ class Tunnel(object):
             self.connected = True
             notification(strings.CONNECTED, tag='connection')
             self.run()
+        finally:
+            self.connecting = False
 
     @gen.coroutine
     def run(self):
