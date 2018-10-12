@@ -5,6 +5,7 @@ import re
 from ngram import NGram
 
 from connect import logger
+from connect import stringconvert
 
 def build_title_index(movies, tvshows):
     start = time.time()
@@ -23,7 +24,7 @@ def build_title_index(movies, tvshows):
     logger.debug('Iterating title took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram(items=values, key=lambda x: x.lower())
+    index = NGram(items=values, key=lambda x: stringconvert.string_to_ascii(x))
     logger.debug('Building title index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -50,7 +51,7 @@ def build_collection_index(movies, tvshows):
     logger.debug('Iterating collection took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram(items=values, key=lambda x: x.lower())
+    index = NGram(items=values, key=lambda x: stringconvert.string_to_ascii(x))
     logger.debug('Building collection index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -72,7 +73,7 @@ def build_genre_index(movies, tvshows):
     logger.debug('Iterating genre took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram(items=values, key=lambda x: x.lower())
+    index = NGram(items=values, key=lambda x: stringconvert.string_to_ascii(x))
     logger.debug('Building genre index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -96,7 +97,7 @@ def build_cast_index(movies, tvshows, key):
     logger.debug('Iterating {} took {} ms'.format(key, int((time.time() - start) * 1000)))
 
     start = time.time()
-    index = NGram(items=values, key=lambda x: x.lower())
+    index = NGram(items=values, key=lambda x: stringconvert.string_to_ascii(x))
     logger.debug('Building {} index took {} ms'.format(key, int((time.time() - start) * 1000)))
 
     return index, mapped_entities
@@ -144,7 +145,7 @@ class LibraryIndex(object):
         value_map = self.compose_index[value_type]['map']
         threshold = self.compose_index[value_type]['threshold']
 
-        similar_values = index.search(filter_value.lower())
+        similar_values = index.search(stringconvert.string_to_ascii(filter_value))
         similar_values = [(value, score) for value, score in similar_values if score > threshold]
         logger.debug(similar_values)
 
