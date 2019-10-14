@@ -2,3 +2,5 @@
 /.vscode
 /*.zip
 *.pyc
+.DS_Store
+/.idea

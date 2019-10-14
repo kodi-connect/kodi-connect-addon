@@ -1,7 +1,7 @@
 import xbmc
 
 def _log(message):
-    xbmc.log('[KodiConnect] {}'.format(message))
+    xbmc.log('[KodiConnect] {}'.format(message), level=xbmc.LOGDEBUG)
 
 def debug(message):
     _log(message)

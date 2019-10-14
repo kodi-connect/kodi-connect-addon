@@ -1,11 +1,18 @@
 import xbmc
+from tornado.ioloop import IOLoop
+
 from connect import logger
+from connect.utils import send_playback_status
+
 
 class CustomPlayer(xbmc.Player):
     def __init__(self, *args, **kwargs):
         xbmc.Player.__init__(self, args, kwargs)
         self.kodi = None
         self.async_tunnel = None
+
+    def set_io_loop(self, io_loop):
+        self.io_loop = io_loop
 
     def set_kodi(self, kodi):
         self.kodi = kodi
@@ -17,26 +24,25 @@ class CustomPlayer(xbmc.Player):
         logger.debug('onPlayBackStarted')
         if self.kodi:
             self.kodi.update_current_item()
-        self._send_playback_status()
+        self.async_send_playback_status()
+
+    def onPlayBackResumed(self):
+        logger.debug('onPlayBackResumed')
+        if self.kodi:
+            self.kodi.update_current_item()
+        self.async_send_playback_status()
 
     def onPlayBackPaused(self):
         logger.debug('onPlaybackPaused')
-        self._send_playback_status()
+        self.async_send_playback_status()
 
     def onPlayBackStopped(self):
         logger.debug('onPlaybackStopped')
-        self._send_playback_status()
+        self.async_send_playback_status()
 
-    def _send_playback_status(self):
-        if not self.async_tunnel or not self.kodi:
-            return
-
-        state = self.kodi.get_state()
-        addon_change = self.kodi.is_playback_addon_change()
-
-        self.async_tunnel({
-            'type': 'change_state',
-            'state': state,
-            'changed': 'player',
-            'addon_change': addon_change
-        })
+    def async_send_playback_status(self):
+        if self.io_loop and self.async_tunnel and self.kodi:
+            logger.debug('async_send_playback_status')
+            self.io_loop.add_callback(
+                self.io_loop.call_later, 1, send_playback_status, self.kodi, self.async_tunnel
+            )

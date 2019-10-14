@@ -69,15 +69,18 @@ def main():
         logger.debug('Tunnel already running, exiting')
         sys.exit(0)
 
+    io_loop = IOLoop(make_current=False)
+
     library_cache = LibraryCache()
     kodi = KodiInterface(library_cache)
     handler = Handler(kodi)
 
     monitor = CustomMonitor(kodi)
     player = CustomPlayer()
+    player.set_io_loop(io_loop)
     player.set_kodi(kodi)
 
-    tunnel = Tunnel(KODI_CONNECT_URL, kodi, handler)
+    tunnel = Tunnel(io_loop, KODI_CONNECT_URL, kodi, handler)
     tunnel_thread = TunnelThread(tunnel)
     tunnel_thread.start()
 

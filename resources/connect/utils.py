@@ -43,6 +43,19 @@ def notification(message, level='info', tag=None, recurring=False):
 
     xbmcgui.Dialog().notification(strings.KODI_CONNECT, encode(message), icon=icon, time=4000)
 
+
+def send_playback_status(kodi, async_tunnel):
+    state = kodi.get_state()
+    addon_change = kodi.is_playback_addon_change()
+
+    async_tunnel({
+        'type': 'change_state',
+        'state': state,
+        'changed': 'player',
+        'addon_change': addon_change
+    })
+
+
 def cmd_exists(cmd):
     return any(
         os.access(os.path.join(path, cmd), os.X_OK)

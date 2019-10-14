@@ -1,6 +1,7 @@
 from tornado.ioloop import IOLoop
 from connect import utils, logger
 
+
 def get_alexa_capabilities():
     capabilities = [
         {
@@ -141,7 +142,7 @@ class Handler(object):
                 self.start_over_handler()
             elif data['commandType'] == 'pause':
                 self.pause_handler()
-            elif data['commandType'] == 'resume':
+            elif data['commandType'] == 'play' or data['commandType'] == 'resume':
                 self.resume_handler()
             elif data['commandType'] == 'stop':
                 self.stop_handler()

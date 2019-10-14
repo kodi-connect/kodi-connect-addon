@@ -190,6 +190,7 @@ def translatePath(path):
     return path
 
 LOGDEBUG = 'LOGDEBUG'
+LOGNOTICE = 'LOGNOTICE'
 
 def log(message, level=LOGDEBUG):
     print("[{}]: {}".format(level, message))

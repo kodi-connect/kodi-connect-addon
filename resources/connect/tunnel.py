@@ -10,14 +10,14 @@ from tornado.websocket import websocket_connect
 from tornado.httpclient import HTTPRequest
 
 from connect import logger, strings
-from connect.utils import notification
+from connect.utils import notification, send_playback_status
 
 __addon__ = xbmcaddon.Addon()
 
 class Tunnel(object):
     """Kodi Connect Websocket Connection"""
-    def __init__(self, url, kodi, handler):
-        self.ioloop = None
+    def __init__(self, io_loop, url, kodi, handler):
+        self.ioloop = io_loop
         self.url = url
         self.websocket = None
         self.connecting = False
@@ -31,7 +31,7 @@ class Tunnel(object):
 
     def start(self):
         """Start IO loop and try to connect to the server"""
-        self.ioloop = IOLoop.current()
+        self.ioloop.make_current()
 
         self.connect()
         self.periodic.start()
@@ -86,6 +86,7 @@ class Tunnel(object):
             logger.debug('Connected')
             self.connected = True
             notification(strings.CONNECTED, tag='connection')
+            self.ioloop.call_later(1, send_playback_status, self.kodi, self.get_async_tunnel())
             self.run()
         finally:
             self.connecting = False
