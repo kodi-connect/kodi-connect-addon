@@ -116,6 +116,9 @@ class Player(object):
     def onPlayBackStopped(self):
         pass
 
+    def onPlayBackResumed(self):
+        pass
+
 abort_file_path = '/tmp/abort'
 
 class Monitor(object):

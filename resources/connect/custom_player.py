@@ -1,5 +1,4 @@
 import xbmc
-from tornado.ioloop import IOLoop
 
 from connect import logger
 from connect.utils import send_playback_status
@@ -8,6 +7,7 @@ from connect.utils import send_playback_status
 class CustomPlayer(xbmc.Player):
     def __init__(self, *args, **kwargs):
         xbmc.Player.__init__(self, args, kwargs)
+        self.io_loop = None
         self.kodi = None
         self.async_tunnel = None
 
