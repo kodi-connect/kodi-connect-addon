@@ -120,6 +120,7 @@ def get_display_entities(entities):
 
     return 'x'.join(display_entities)
 
+
 class KodiInterface(object):
     def __init__(self, library_cache):
         self.library_cache = library_cache
