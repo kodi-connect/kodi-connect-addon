@@ -1,4 +1,8 @@
-version: 2
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@1.0.11
+
 jobs:
   build:
     docker:
@@ -55,3 +59,40 @@ jobs:
       - run:
           name: Create package
           command: ./create-package.sh
+
+      - run: mkdir -p /tmp/package
+
+      - run:
+          name: Copy package
+          command: cp -v plugin.video-kodiconnect-*.zip /tmp/package
+
+      - persist_to_workspace:
+          root: /tmp/package
+          paths:
+            - plugin.video-kodiconnect-*.zip
+
+  upload_package:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - attach_workspace:
+          at: /tmp/package
+
+      - aws-s3/sync:
+          from: /tmp/package
+          to: 's3://kodi-connect/kodi-connect-addon'
+          overwrite: true
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - upload_package:
+          context: aws
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
