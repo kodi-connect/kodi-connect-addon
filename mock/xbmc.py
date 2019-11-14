@@ -7,6 +7,11 @@ import urllib
 from tornado.httpclient import HTTPClient
 
 KODI_HOST = os.environ['KODI_HOST']
+LOG_FILE = os.environ.get('LOG_FILE', '/tmp/kodi.log')
+
+def write_log(token, message):
+    with open(LOG_FILE, 'a') as f:
+        f.write('[{}] {}\n'.format(token, message))
 
 def _kodi_rpc(obj):
     return json.loads(executeJSONRPC(json.dumps(obj)))
@@ -85,10 +90,12 @@ class Player(object):
         if self.current_item:
             if self.speed == 0:
                 print('[XBMC] Resuming player')
+                write_log('Player', 'RESUME')
                 self.speed = 1
                 self.onPlayBackStarted()
             else:
                 print('[XBMC] Pausing player')
+                write_log('Player', 'PAUSE')
                 self.speed = 0
                 self.onPlayBackPaused()
 
@@ -97,6 +104,7 @@ class Player(object):
 
     def _stop(self):
         print('[XBMC] Stopping player')
+        write_log('Player', 'STOP')
         self.current_item = None
         self.speed = 0
         self.onPlayBackStopped()
@@ -137,7 +145,7 @@ class Monitor(object):
         time.sleep(seconds)
         return self.abortRequested()
 
-def executeJSONRPC(request_str):
+def _executeJSONRPC(request_str):
     request = json.loads(request_str)
     print('[XBMC] executeJSONRPC: {}'.format(str(request)))
 
@@ -185,6 +193,12 @@ def executeJSONRPC(request_str):
     print('Invalid request')
     print(request_str)
     raise Exception('Invalid request')
+
+def executeJSONRPC(request_str):
+    write_log('JSONRPC_OUT', request_str)
+    result = _executeJSONRPC(request_str)
+    write_log('JSONRPC_IN', result)
+    return result
 
 def executebuiltin(str):
     print('[XBMC] executebuiltin: {}'.format(str))
