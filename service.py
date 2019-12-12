@@ -8,8 +8,9 @@ import xbmc
 import xbmcaddon
 
 __addon__ = xbmcaddon.Addon()
+version = __addon__.getAddonInfo('version')
 
-KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
+KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws?version=' + version)
 
 RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
 LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
