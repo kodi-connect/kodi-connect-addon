@@ -11,6 +11,9 @@ class Addon(object):
     def getAddonInfo(self, prop):
         if prop == 'path':
           return os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+        elif prop == 'version':
+          with open('./version', 'r') as f:
+            return f.readline()
         else:
           raise Exception('Unknown property')
 
