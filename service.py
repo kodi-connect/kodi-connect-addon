@@ -8,7 +8,7 @@ import xbmc
 import xbmcaddon
 
 __addon__ = xbmcaddon.Addon()
-version = __addon__.getAddonInfo('version')
+VERSION = __addon__.getAddonInfo('version')
 
 KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws?version=' + version)
 
