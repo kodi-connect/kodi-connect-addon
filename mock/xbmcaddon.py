@@ -2,6 +2,7 @@
 
 import os
 import re
+from xml.dom import minidom
 
 class Addon(object):
     def __init__(self, id='plugin.video.kodiconnect'):
@@ -12,8 +13,8 @@ class Addon(object):
         if prop == 'path':
           return os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
         elif prop == 'version':
-          with open('./version', 'r') as f:
-            return f.readline()
+          xmldoc = minidom.parse(os.path.join(self.getAddonInfo('path'), 'addon.xml'))
+          return xmldoc.getElementsByTagName('addon')[0].attributes['version'].value
         else:
           raise Exception('Unknown property')
 

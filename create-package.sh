@@ -22,7 +22,7 @@ cp -r \
 
 find "${install_dir}" -name '*.pyc' -exec rm "{}" \;
 
-sed_replace_cmd="s/<version>/${version}/g"
+sed_replace_cmd="s/xversionx/${version}/g"
 sed -i "${sed_replace_cmd}" "${install_dir}/addon.xml"
 find "${install_dir}/resources/language" -name '*.po' -exec sed -i "${sed_replace_cmd}" "{}" \;
 
