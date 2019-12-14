@@ -11,7 +11,7 @@ class TestHandler(unittest.TestCase):
         __addon__ = xbmcaddon.Addon()
         VERSION = __addon__.getAddonInfo('version')
 
-        self.assertRegexpMatches(VERSION, '\d+\.\d+\.\d+')
+        self.assertRegexpMatches(VERSION, r'\d+\.\d+\.\d+')
 
 if __name__ == '__main__':
     unittest.main()
