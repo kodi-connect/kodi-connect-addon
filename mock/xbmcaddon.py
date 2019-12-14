@@ -13,10 +13,8 @@ class Addon(object):
         if prop == 'path':
           return os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
         elif prop == 'version':
-          with minidom.parse(os.path.join(self.getAddonInfo('path'), 'version.xml')) as xmldoc:
+          with minidom.parse(os.path.join(self.getAddonInfo('path'), 'addon.xml')) as xmldoc:
             return xmldoc.getElementsByTagName('addon')[0].attributes['version'].value
-        #   with open('./version', 'r') as f:
-        #     return f.readline()
         else:
           raise Exception('Unknown property')
 
