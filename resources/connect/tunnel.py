@@ -13,6 +13,7 @@ from connect import logger, strings
 from connect.utils import notification, send_playback_status
 
 __addon__ = xbmcaddon.Addon()
+VERSION = __addon__.getAddonInfo('version')
 
 class Tunnel(object):
     """Kodi Connect Websocket Connection"""
@@ -75,7 +76,12 @@ class Tunnel(object):
         logger.debug('trying to connect')
         self.connecting = True
         try:
-            request = HTTPRequest(self.url, auth_username=email, auth_password=secret)
+            request = HTTPRequest(
+                self.url,
+                headers=dict(addonversion=VERSION),
+                auth_username=email,
+                auth_password=secret
+            )
 
             self.websocket = yield websocket_connect(request)
         except:

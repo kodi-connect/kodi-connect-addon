@@ -1,5 +1,9 @@
 #!/bin/bash -xe
 
+# To run through docker:
+#  docker-compose run --rm --no-deps app ./create-package.sh
+#  docker-compose run --rm --no-deps app ./install-dependencies.sh
+
 root_dir="$(cd $(dirname $0) && pwd -P)"
 plugin_id="plugin.video.kodiconnect"
 version="$(cat "${root_dir}/version")"
