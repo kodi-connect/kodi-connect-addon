@@ -9,7 +9,7 @@ import xbmcaddon
 
 __addon__ = xbmcaddon.Addon()
 
-KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://mactunnel.kislan.sk/ws')
+KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
 
 RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
 LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
