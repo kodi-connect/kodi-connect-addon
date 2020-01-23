@@ -81,7 +81,6 @@ jobs:
       - aws-s3/sync:
           from: /tmp/package
           to: 's3://kodi-connect/kodi-connect-addon'
-          overwrite: true
 
 
 workflows:
