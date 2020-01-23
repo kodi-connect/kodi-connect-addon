@@ -3,8 +3,6 @@
 
 import unittest
 
-from ngram import NGram
-
 from connect.utils import strip_accents
 from connect.library_index import build_title_index
 
