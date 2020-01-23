@@ -5,16 +5,19 @@ import re
 from ngram import NGram
 
 from connect import logger
+from connect.utils import strip_accents
 
 def build_title_index(movies, tvshows):
     start = time.time()
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
-    values = [entity['title'] for entity in entities]
+    values = [strip_accents(entity['title']) for entity in entities]
+    # values = [entity['title'] for entity in entities]
 
     mapped_entities = {}
     for entity in entities:
-        value = entity['title']
+        value = strip_accents(entity['title'])
+        # value = entity['title']
         if value not in mapped_entities:
             mapped_entities[value] = []
 
@@ -36,12 +39,15 @@ def build_collection_index(movies, tvshows):
     start = time.time()
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
-    values = list(set([parse_collection(entity['set']) for entity in entities if 'set' in entity and len(entity['set']) > 0]))
+    values = list(set([
+        parse_collection(strip_accents(entity['set']))
+        for entity in entities if 'set' in entity and len(entity['set']) > 0
+    ]))
 
     mapped_entities = {}
     for entity in entities:
         if 'set' in entity and entity['set']:
-            value = parse_collection(entity['set'])
+            value = parse_collection(strip_accents(entity['set']))
             if value not in mapped_entities:
                 mapped_entities[value] = []
 
@@ -59,11 +65,11 @@ def build_genre_index(movies, tvshows):
     start = time.time()
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
-    values = list(set(itertools.chain.from_iterable([entity['genre'] for entity in entities])))
+    values = list(set([strip_accents(entity['genre']) for entity in entities]))
 
     mapped_entities = {}
     for entity in entities:
-        for genre in entity['genre']:
+        for genre in [strip_accents(genre) for genre in entity['genre']]:
             if genre not in mapped_entities:
                 mapped_entities[genre] = []
 
@@ -81,13 +87,13 @@ def build_cast_index(movies, tvshows, key):
     start = time.time()
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
-    values = [[cast[key] for cast in entity['cast']] for entity in entities]
+    values = [[strip_accents(cast[key]) for cast in entity['cast']] for entity in entities]
     values = list(set(itertools.chain.from_iterable(values)))
 
     mapped_entities = {}
     for entity in entities:
         for cast in entity['cast']:
-            value = cast[key]
+            value = strip_accents(cast[key])
             if value not in mapped_entities:
                 mapped_entities[value] = []
 
@@ -144,7 +150,7 @@ class LibraryIndex(object):
         value_map = self.compose_index[value_type]['map']
         threshold = self.compose_index[value_type]['threshold']
 
-        similar_values = index.search(filter_value.lower())
+        similar_values = index.search(strip_accents(filter_value).lower())
         similar_values = [(value, score) for value, score in similar_values if score > threshold]
         logger.debug(similar_values)
 

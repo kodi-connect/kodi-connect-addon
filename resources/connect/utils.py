@@ -1,6 +1,7 @@
 # pylint: disable=global-statement
 
 import os
+import unicodedata
 import xbmcgui
 
 from connect import strings
@@ -20,6 +21,17 @@ def encode(string):
         result = 'Unicode Error'
 
     return result
+
+def strip_accents(text):
+    try:
+        text = unicode(text, 'utf-8')
+    except (TypeError, NameError): # unicode is a default on python 3
+        pass
+    text = unicodedata.normalize('NFD', text)
+    text = text.encode('ascii', 'ignore')
+    text = text.decode("utf-8")
+    return str(text)
+
 
 __last_notifications__ = {}
 
