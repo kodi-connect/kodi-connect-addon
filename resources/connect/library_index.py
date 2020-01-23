@@ -65,7 +65,10 @@ def build_genre_index(movies, tvshows):
     start = time.time()
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
-    values = list(set([strip_accents(entity['genre']) for entity in entities]))
+    values = list(set(filter(
+        strip_accents,
+        itertools.chain.from_iterable([entity['genre'] for entity in entities])
+    )))
 
     mapped_entities = {}
     for entity in entities:
