@@ -12,12 +12,10 @@ def build_title_index(movies, tvshows):
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
     values = [strip_accents(entity['title']) for entity in entities]
-    # values = [entity['title'] for entity in entities]
 
     mapped_entities = {}
     for entity in entities:
         value = strip_accents(entity['title'])
-        # value = entity['title']
         if value not in mapped_entities:
             mapped_entities[value] = []
 

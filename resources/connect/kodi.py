@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use
+# pylint: disable=no-self-use,broad-except
 
 import os
 import time
@@ -187,15 +187,19 @@ class KodiInterface(object):
             notification(strings.NOTHING_FOUND)
             return False
 
-        if 'movieid' in entity:
-            self._set_last_playback_change_at()
-            play_movie(entity)
-        elif 'tvshowid' in entity:
-            season, episode = _pick(video_filter, 'season', 'episode')
-            self._set_last_playback_change_at()
-            play_tvshow(entity, season, episode)
-        else:
-            return False
+        try:
+            if 'movieid' in entity:
+                self._set_last_playback_change_at()
+                play_movie(entity)
+            elif 'tvshowid' in entity:
+                season, episode = _pick(video_filter, 'season', 'episode')
+                self._set_last_playback_change_at()
+                play_tvshow(entity, season, episode)
+            else:
+                logger.error('Invalid entity, not "movieid" nor "tvshowid" found')
+                return False
+        except Exception as error:
+            logger.error('Failed to play entity: {}'.format(str(error)))
 
         return True
 
