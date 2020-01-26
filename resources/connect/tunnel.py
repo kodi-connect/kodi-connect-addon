@@ -85,7 +85,7 @@ class Tunnel(object):
 
             self.websocket = yield websocket_connect(request)
         except:
-            logger.debug('connection error: {}'.format(traceback.format_exc()))
+            logger.debug(u'connection error: {}'.format(traceback.format_exc()))
             self.websocket = None
             notification(strings.FAILED_TO_CONNECT, level='error', tag='connection')
         else:
@@ -115,7 +115,7 @@ class Tunnel(object):
             try:
                 response_data = self.handler.handler(data)
             except:
-                logger.error('Handler failed: {}'.format(traceback.format_exc()))
+                logger.error(u'Handler failed: {}'.format(traceback.format_exc()))
                 response_data = {"status": "error", "error": "Unknown error"}
 
             response_message = {"correlationId": message['correlationId'], "data": response_data}
@@ -132,7 +132,7 @@ class Tunnel(object):
         try:
             self.kodi.update_cache()
         except:
-            logger.error('Failed to update Kodi library: {}'.format(traceback.format_exc()))
+            logger.error(u'Failed to update Kodi library: {}'.format(traceback.format_exc()))
 
     def get_async_tunnel(self):
         tunnel = self

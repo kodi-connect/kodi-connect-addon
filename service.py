@@ -29,8 +29,8 @@ from connect.custom_player import CustomPlayer
 from connect.tunnel import Tunnel
 from connect.tunnel_thread import TunnelThread
 
-logger.debug('RESOURCES_PATHs: {}, {}'.format(RESOURCES_PATH, LIB_RESOURCES_PATH))
-logger.debug('__file__: {}'.format(__file__))
+logger.debug(u'RESOURCES_PATHs: {}, {}'.format(RESOURCES_PATH, LIB_RESOURCES_PATH))
+logger.debug(u'__file__: {}'.format(__file__))
 
 __logging_config__ = dict(
     version=1,
@@ -60,7 +60,7 @@ dictConfig(__logging_config__)
 def main():
     """Main function"""
     logger.debug('Starting')
-    logger.debug('pid={}'.format(os.getpid()))
+    logger.debug(u'pid={}'.format(os.getpid()))
 
     try:
         __once__ = OnlyOnce()

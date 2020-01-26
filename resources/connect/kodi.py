@@ -34,7 +34,7 @@ def get_current_item():
     if not player_id:
         return None
     item = kodi_rpc.get_current_item(player_id)
-    logger.debug('Current item: {}'.format(str(item)))
+    logger.debug(u'Current item: {}'.format(str(item)))
     item_type = _get(item, 'type')
 
     if item_type == 'movie':
@@ -72,11 +72,11 @@ def get_player_time():
     return milliseconds
 
 def play_movie(movie):
-    logger.debug('Playing movie: {}'.format(movie['title']))
+    logger.debug(u'Playing movie: {}'.format(movie['title']))
     kodi_rpc.play_movieid(movie['movieid'])
 
 def play_tvshow(tvshow, season, episode):
-    logger.debug('Playing tv show: {}, season: {}, episode: {}'.format(tvshow['title'], season, episode))
+    logger.debug(u'Playing tv show: {}, season: {}, episode: {}'.format(tvshow['title'], season, episode))
 
     if season and episode:
         episode_id = kodi_rpc.get_episodeid(tvshow['tvshowid'], int(season), int(episode))
@@ -84,7 +84,7 @@ def play_tvshow(tvshow, season, episode):
         episode_id = kodi_rpc.get_next_unwatched_episode(tvshow['tvshowid'])
 
     if episode_id:
-        logger.debug('Playing episodeid: {}'.format(episode_id))
+        logger.debug(u'Playing episodeid: {}'.format(episode_id))
         play_episodeid(episode_id)
 
 def play_episodeid(episodeid):
@@ -105,7 +105,7 @@ def get_display_url(entities):
         elif 'tvshowid' in entity:
             entity_ids.append(('tvshowid', entity['tvshowid']))
 
-    query_string = '&'.join(['{}={}'.format(key, entity_id) for key, entity_id in entity_ids])
+    query_string = '&'.join([u'{}={}'.format(key, entity_id) for key, entity_id in entity_ids])
 
     return 'plugin://plugin.video.kodiconnect?' + query_string
 
@@ -114,9 +114,9 @@ def get_display_entities(entities):
 
     for entity in entities:
         if 'movieid' in entity:
-            display_entities.append('m{}'.format(entity['movieid']))
+            display_entities.append(u'm{}'.format(entity['movieid']))
         elif 'tvshowid' in entity:
-            display_entities.append('t{}'.format(entity['tvshowid']))
+            display_entities.append(u't{}'.format(entity['tvshowid']))
 
     return 'x'.join(display_entities)
 
@@ -159,15 +159,14 @@ class KodiInterface(object):
             logger.debug('Updating library cache')
             movies = kodi_rpc.get_movies() or []
             tvshows = kodi_rpc.get_tv_shows() or []
-            logger.debug('Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
+            logger.debug(u'Found {} movies and {} tvshows'.format(len(movies), len(tvshows)))
             self.library_cache.set_library(movies, tvshows)
-            # self.library_index = create_library_index(movies, tvshows)
             self._update_library_index(movies, tvshows)
 
     def update_current_item(self):
         current_item = get_current_item()
         if current_item:
-            logger.debug('current_item: {}'.format(current_item))
+            logger.debug(u'current_item: {}'.format(current_item))
             self.current_item = current_item
 
     def find_entities(self, video_filter):
@@ -181,7 +180,7 @@ class KodiInterface(object):
         filtered_entities = self.find_entities(video_filter)
 
         entity = filtering.get_best_match(filtered_entities)
-        logger.debug('Found Entity {}'.format(str(entity)))
+        logger.debug(u'Found Entity {}'.format(str(entity)))
 
         if not entity:
             notification(strings.NOTHING_FOUND)
@@ -199,7 +198,7 @@ class KodiInterface(object):
                 logger.error('Invalid entity, not "movieid" nor "tvshowid" found')
                 return False
         except Exception as error:
-            logger.error('Failed to play entity: {}'.format(str(error)))
+            logger.error(u'Failed to play entity: {}'.format(str(error)))
 
         return True
 
@@ -214,14 +213,14 @@ class KodiInterface(object):
 
         display_entities = get_display_entities(best_matches)
 
-        logger.debug('display_entities: {}'.format(str(display_entities)))
+        logger.debug(u'display_entities: {}'.format(str(display_entities)))
 
         kodi_rpc.execute_addon({"entities": display_entities})
 
         return True
 
     def next_item(self):
-        logger.debug('Next item, current_item: {}'.format(str(self.current_item)))
+        logger.debug(u'Next item, current_item: {}'.format(str(self.current_item)))
         if not self.current_item:
             return False
 
@@ -311,10 +310,10 @@ class KodiInterface(object):
 
     def adjust_volume(self, volume):
         current_volume = kodi_rpc.get_volume()
-        logger.debug('Current volume: {}'.format(current_volume))
+        logger.debug(u'Current volume: {}'.format(current_volume))
 
         new_volume = max(min(current_volume + volume, 100), 0)
-        logger.debug('Adjusting volume to: {}'.format(new_volume))
+        logger.debug(u'Adjusting volume to: {}'.format(new_volume))
 
         kodi_rpc.set_volume(new_volume)
         return True
@@ -351,7 +350,7 @@ class KodiInterface(object):
         if utils.cec_available():
             state.append({"name": "power", "value": True})
 
-        logger.debug('Fetching state took {} ms'.format(int((time.time() - start) * 1000)))
+        logger.debug(u'Fetching state took {} ms'.format(int((time.time() - start) * 1000)))
 
         return state
 

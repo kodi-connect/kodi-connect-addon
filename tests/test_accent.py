@@ -5,6 +5,7 @@ import unittest
 
 from connect.utils import strip_accents
 from connect.library_index import build_title_index
+from connect.kodi import play_movie
 
 class TestAccent(unittest.TestCase):
     def test_strip_accent(self):

@@ -8,5 +8,5 @@ class CustomMonitor(xbmc.Monitor):
 
 # pylint: disable=invalid-name
     def onScanFinished(self, library):
-        logger.debug('onScanFinished: {}'.format(library))
+        logger.debug(u'onScanFinished: {}'.format(library))
         self.kodi.invalidate_cache()

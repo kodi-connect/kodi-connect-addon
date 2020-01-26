@@ -22,17 +22,17 @@ sys.path.append(LIB_RESOURCES_PATH)
 
 from connect import logger, strings, kodi_rpc
 
-logger.debug('RESOURCES_PATHs: {}, {}'.format(RESOURCES_PATH, LIB_RESOURCES_PATH))
-logger.debug('__file__: {}'.format(__file__))
+logger.debug(u'RESOURCES_PATHs: {}, {}'.format(RESOURCES_PATH, LIB_RESOURCES_PATH))
+logger.debug(u'__file__: {}'.format(__file__))
 
 def main():
-    logger.debug('argv: {}'.format(sys.argv[2][1:]))
-    logger.debug('args: {}'.format(str(__args__)))
+    logger.debug(u'argv: {}'.format(sys.argv[2][1:]))
+    logger.debug(u'args: {}'.format(str(__args__)))
 
     entities = __args__.get('entities', [''])[0].split('x')
     total_items = len(entities)
 
-    logger.debug('entities: {}'.format(str(entities)))
+    logger.debug(u'entities: {}'.format(str(entities)))
 
     if not entities:
         xbmcplugin.addDirectoryItem(__handle__, '', xbmcgui.ListItem(strings.NO_ITEMS_FOUND), isFolder=False)

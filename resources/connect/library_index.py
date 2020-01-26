@@ -21,11 +21,11 @@ def build_title_index(movies, tvshows):
 
         mapped_entities[value].append(entity)
 
-    logger.debug('Iterating title took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Iterating title took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
     index = NGram(items=values, key=lambda x: x.lower())
-    logger.debug('Building title index took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Building title index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
 
@@ -51,11 +51,11 @@ def build_collection_index(movies, tvshows):
 
             mapped_entities[value].append(entity)
 
-    logger.debug('Iterating collection took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Iterating collection took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
     index = NGram(items=values, key=lambda x: x.lower())
-    logger.debug('Building collection index took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Building collection index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
 
@@ -76,11 +76,11 @@ def build_genre_index(movies, tvshows):
 
             mapped_entities[genre].append(entity)
 
-    logger.debug('Iterating genre took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Iterating genre took {} ms'.format(int((time.time() - start) * 1000)))
 
     start = time.time()
     index = NGram(items=values, key=lambda x: x.lower())
-    logger.debug('Building genre index took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Building genre index took {} ms'.format(int((time.time() - start) * 1000)))
 
     return index, mapped_entities
 
@@ -100,11 +100,11 @@ def build_cast_index(movies, tvshows, key):
 
             mapped_entities[value].append(entity)
 
-    logger.debug('Iterating {} took {} ms'.format(key, int((time.time() - start) * 1000)))
+    logger.debug(u'Iterating {} took {} ms'.format(key, int((time.time() - start) * 1000)))
 
     start = time.time()
     index = NGram(items=values, key=lambda x: x.lower())
-    logger.debug('Building {} index took {} ms'.format(key, int((time.time() - start) * 1000)))
+    logger.debug(u'Building {} index took {} ms'.format(key, int((time.time() - start) * 1000)))
 
     return index, mapped_entities
 
@@ -166,10 +166,10 @@ class LibraryIndex(object):
 
         matched_entities = list(itertools.chain.from_iterable([self._find_by(filter_value, value_type) for filter_value in filter_values]))
 
-        logger.debug('Find similar {} took {} ms'.format(value_type, int((time.time() - start) * 1000)))
+        logger.debug(u'Find similar {} took {} ms'.format(value_type, int((time.time() - start) * 1000)))
 
-        logger.debug('Length: {}'.format(len(matched_entities)))
-        logger.debug('Length: {}'.format(len(remove_duplicates(matched_entities))))
+        logger.debug(u'Length: {}'.format(len(matched_entities)))
+        logger.debug(u'Length: {}'.format(len(remove_duplicates(matched_entities))))
 
         return remove_duplicates(matched_entities)
 
@@ -205,7 +205,7 @@ class LibraryIndex(object):
             else:
                 entities = filter_by_media_type(entities, video_filter['mediaType'])
 
-        logger.debug('Indexed find by filter took {} ms'.format(int((time.time() - start) * 1000)))
+        logger.debug(u'Indexed find by filter took {} ms'.format(int((time.time() - start) * 1000)))
 
         return entities
 
