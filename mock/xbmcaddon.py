@@ -30,7 +30,7 @@ class Addon(object):
         with open('./resources/language/English/strings.po', 'r') as f:
             content = f.read()
 
-            match = re.search('msgctxt "#{}"\nmsgid "(.*)"\n'.format(string_id), content)
+            match = re.search(u'msgctxt "#{}"\nmsgid "(.*)"\n'.format(string_id), content)
 
             if not match:
                 raise Exception('Didn\'t find string id')

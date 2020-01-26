@@ -15,4 +15,4 @@ def endOfDirectory(handle):
     _end_of_directory = True
 
 def setContent(handle, content):
-    print('[XBMC] setContent: {}'.format(content))
+    print(u'[XBMC] setContent: {}'.format(content))
