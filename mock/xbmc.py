@@ -11,7 +11,7 @@ LOG_FILE = os.environ.get('LOG_FILE', '/tmp/kodi.log')
 
 def write_log(token, message):
     with open(LOG_FILE, 'a') as f:
-        f.write('[{}] {}\n'.format(token, message))
+        f.write(u'[{}] {}\n'.format(token, message))
 
 def _kodi_rpc(obj):
     return json.loads(executeJSONRPC(json.dumps(obj)))
@@ -21,7 +21,7 @@ def kodi_rpc(request):
     query = urllib.urlencode({ 'request': request })
 
     http_client = HTTPClient()
-    resp = http_client.fetch('{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
+    resp = http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
     http_client.close()
     return resp.body
 
@@ -82,7 +82,7 @@ class Player(object):
 
     def _play(self, params):
         self.current_item = _get_item_by_params(params)
-        print('[XBMC] current_item: {}'.format(str(self.current_item)))
+        print(u'[XBMC] current_item: {}'.format(str(self.current_item)))
         self.speed = 1
         self.onPlayBackStarted()
 
@@ -147,11 +147,11 @@ class Monitor(object):
 
 def _executeJSONRPC(request_str):
     request = json.loads(request_str)
-    print('[XBMC] executeJSONRPC: {}'.format(str(request)))
+    print(u'[XBMC] executeJSONRPC: {}'.format(str(request)))
 
     if request['method'].startswith('Player.'):
         if request['method'] == 'Player.Open':
-            print('[XBMC] Player.Open: {}'.format(str(request)))
+            print(u'[XBMC] Player.Open: {}'.format(str(request)))
             # TODO - return proper response as if started playback
             kodi_player._play(request['params'])
             return json.dumps({})
@@ -201,7 +201,7 @@ def executeJSONRPC(request_str):
     return result
 
 def executebuiltin(str):
-    print('[XBMC] executebuiltin: {}'.format(str))
+    print(u'[XBMC] executebuiltin: {}'.format(str))
 
 def translatePath(path):
     return path
@@ -210,4 +210,6 @@ LOGDEBUG = 'LOGDEBUG'
 LOGNOTICE = 'LOGNOTICE'
 
 def log(message, level=LOGDEBUG):
+    if not isinstance(message, str):
+        raise RuntimeError('message should be of type str')
     print("[{}]: {}".format(level, message))
