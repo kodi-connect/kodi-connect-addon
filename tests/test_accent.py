@@ -37,8 +37,7 @@ class TestAccent(unittest.TestCase):
 
         index, _ = build_title_index([dict(title=value) for value in values], [])
 
-        self.assertGreater(index.search(strip_accents("Capitán América: El primer vengador")), 0.4)
-        self.assertEqual(index.search(strip_accents("Capitán América: El primer vengador").lower())[0], 1.0)
+        self.assertEqual(index.search(strip_accents("Capitán América: El primer vengador").lower())[0][1], 1.0)
 
 if __name__ == '__main__':
     unittest.main()
