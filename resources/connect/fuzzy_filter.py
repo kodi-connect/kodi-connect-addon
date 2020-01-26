@@ -84,6 +84,6 @@ def fuzzy_filter(movies, tvshows, video_filter):
 
     filtered_entities = filter_entities(video_filter, entities)
 
-    logger.debug('Fuzzy filter took {} ms'.format(int((time.time() - start) * 1000)))
+    logger.debug(u'Fuzzy filter took {} ms'.format(int((time.time() - start) * 1000)))
 
     return filtered_entities

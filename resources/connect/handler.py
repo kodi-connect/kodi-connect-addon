@@ -61,11 +61,11 @@ class Handler(object):
         self.kodi = kodi
 
     def search_and_play_handler(self, video_filter):
-        logger.debug('search_and_play_handler: {}'.format(str(video_filter)))
+        logger.debug(u'search_and_play_handler: {}'.format(str(video_filter)))
         IOLoop.instance().add_callback(self.kodi.find_and_play, video_filter)
 
     def search_and_display_handler(self, video_filter):
-        logger.debug('search_and_display_handler: {}'.format(str(video_filter)))
+        logger.debug(u'search_and_display_handler: {}'.format(str(video_filter)))
         IOLoop.instance().add_callback(self.kodi.find_and_display, video_filter)
 
     def next_handler(self):
@@ -101,20 +101,20 @@ class Handler(object):
         IOLoop.instance().add_callback(self.kodi.fastforward)
 
     def seek_handler(self, delta_position):
-        logger.debug('seek_handler: {}'.format(delta_position))
+        logger.debug(u'seek_handler: {}'.format(delta_position))
         milliseconds = self.kodi.seek(delta_position)
         return {"status": "ok", "positionMilliseconds": milliseconds}
 
     def set_volume_handler(self, volume):
-        logger.debug('set_volume_handler: {}'.format(volume))
+        logger.debug(u'set_volume_handler: {}'.format(volume))
         IOLoop.instance().add_callback(self.kodi.set_volume, volume)
 
     def adjust_volume_handler(self, volume):
-        logger.debug('adjust_volume_handler: {}'.format(volume))
+        logger.debug(u'adjust_volume_handler: {}'.format(volume))
         IOLoop.instance().add_callback(self.kodi.adjust_volume, volume)
 
     def set_mute_handler(self, mute):
-        logger.debug('set_mute_handler: {}'.format(mute))
+        logger.debug(u'set_mute_handler: {}'.format(mute))
         IOLoop.instance().add_callback(self.kodi.set_mute, mute)
 
     def turnon_handler(self):
@@ -127,7 +127,7 @@ class Handler(object):
 
     # pylint: disable=too-many-branches
     def handler(self, data):
-        logger.debug('handler data: {}'.format(str(data)))
+        logger.debug(u'handler data: {}'.format(str(data)))
         response_data = {'status': 'ok'}
         if data['type'] == 'command':
             if data['commandType'] == 'searchAndPlay':
@@ -171,6 +171,6 @@ class Handler(object):
         else:
             response_data = {'status': 'error', 'error': 'unknown_command'}
 
-        logger.debug('handler response_data: {}'.format(str(response_data)))
+        logger.debug(u'handler response_data: {}'.format(str(response_data)))
 
         return response_data
