@@ -11,7 +11,7 @@ LOG_FILE = os.environ.get('LOG_FILE', '/tmp/kodi.log')
 
 def write_log(token, message):
     with open(LOG_FILE, 'a') as f:
-        f.write(u'[{}] {}\n'.format(token, message).encode('utf-8'))
+        f.write('[{}] {}\n'.format(token, message))
 
 def _kodi_rpc(obj):
     return json.loads(executeJSONRPC(json.dumps(obj)))
