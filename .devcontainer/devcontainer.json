@@ -1,0 +1,24 @@
+{
+	"name": "Kodi Connect Addon",
+	"dockerComposeFile": [
+		"../docker-compose.yml",
+		"docker-compose.yml"
+	],
+	"service": "app",
+
+	"workspaceFolder": "/home/python/app",
+	"settings": { 
+		"terminal.integrated.shell.linux": null
+	},
+	"remoteUser": "root",
+	"shutdownAction": "stopCompose",
+
+	"postCreateCommand": "history -a; apt-get update; apt-get install -y git",
+
+	"extensions": [
+		"ms-python.python",
+		"visualstudioexptteam.vscodeintellicode",
+		"eamodio.gitlens",
+		"github.vscode-pull-request-github"
+	]
+}

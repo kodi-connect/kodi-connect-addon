@@ -9,7 +9,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    entrypoint: bash
     stdin_open: true
     tty: true
     environment:

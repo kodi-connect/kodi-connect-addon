@@ -1,0 +1,13 @@
+version: '3'
+services:
+  app:
+    environment:
+      HISTFILE: '/root/.bashhistory/.bash_history'
+    volumes:
+      - vscode-server-extensions:/root/.vscode-server/extensions
+      - bash-history:/root/.bashhistory
+      - $HOME/.ssh:/root/.ssh
+    command: /bin/sh -c "while sleep 1000; do :; done"
+volumes:
+  vscode-server-extensions:
+  bash-history:
