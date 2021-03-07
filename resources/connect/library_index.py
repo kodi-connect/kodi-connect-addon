@@ -1,6 +1,7 @@
 import itertools
 import time
 import re
+from functools import reduce
 
 from ngram import NGram
 
@@ -37,10 +38,10 @@ def build_collection_index(movies, tvshows):
     start = time.time()
 
     entities = list(itertools.chain.from_iterable([movies, tvshows]))
-    values = list(set([
+    values = list({
         parse_collection(strip_accents(entity['set']))
         for entity in entities if 'set' in entity and len(entity['set']) > 0
-    ]))
+    })
 
     mapped_entities = {}
     for entity in entities:
@@ -135,7 +136,7 @@ def cross_section(results):
 def filter_by_media_type(entities, media_type):
     if media_type == 'movie':
         return [(entity, score) for entity, score in entities if 'movieid' in entity]
-    elif media_type == 'tv show':
+    if media_type == 'tv show':
         return [(entity, score) for entity, score in entities if 'tvshowid' in entity]
 
     return entities
@@ -176,7 +177,7 @@ class LibraryIndex(object):
     def _get_entities(self, media_type):
         if media_type == 'movie':
             return self.movies
-        elif media_type == 'tv show':
+        if media_type == 'tv show':
             return self.tvshows
         return []
 

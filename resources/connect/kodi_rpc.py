@@ -1,10 +1,11 @@
+from builtins import str
 import json
 import xbmc
 
 from connect.utils import _get
 
 def _decode(res):
-    if isinstance(res, unicode):
+    if isinstance(res, str):
         return res
 
     try:
