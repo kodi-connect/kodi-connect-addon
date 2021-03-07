@@ -5,8 +5,11 @@ orbs:
 
 jobs:
   build:
+    parameters:
+      python_version:
+        type: string
     docker:
-      - image: circleci/python:2.7
+      - image: circleci/python:<< parameter.python_version >>
       - image: tkislan/kodi-simulator
     environment:
       KODI_HOST: http://localhost:8080
@@ -85,9 +88,21 @@ jobs:
 
 workflows:
   version: 2
-  build:
+  build-python-2.7:
     jobs:
-      - build
+      - build:
+          python_version: 2.7
+      - upload_package:
+          context: aws
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+  build-python-3.6:
+    jobs:
+      - build:
+          python_version: 3.6
       - upload_package:
           context: aws
           requires:

@@ -3,8 +3,12 @@
 import os
 import time
 import json
-import urllib
 from tornado.httpclient import HTTPClient
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 KODI_HOST = os.environ['KODI_HOST']
 LOG_FILE = os.environ.get('LOG_FILE', '/tmp/kodi.log')
@@ -18,7 +22,7 @@ def _kodi_rpc(obj):
 
 def kodi_rpc(request):
     print('[XBMC] Calling kodi rpc')
-    query = urllib.urlencode({ 'request': request })
+    query = urlencode({'request': request})
 
     http_client = HTTPClient()
     resp = http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
@@ -210,6 +214,8 @@ LOGDEBUG = 'LOGDEBUG'
 LOGNOTICE = 'LOGNOTICE'
 
 def log(message, level=LOGDEBUG):
+    if isinstance(message, bytes):
+        message = message.decode('utf-8')
     if not isinstance(message, str):
         raise RuntimeError('message should be of type str')
     print("[{}]: {}".format(level, message))

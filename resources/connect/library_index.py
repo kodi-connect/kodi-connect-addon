@@ -1,6 +1,7 @@
 import itertools
 import time
 import re
+from functools import reduce
 
 from ngram import NGram
 
