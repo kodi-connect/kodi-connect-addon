@@ -28,6 +28,10 @@ jobs:
       - run:
           name: Install Test dependencies
           command: sudo pip install pylint flake8
+      
+      - run:
+          name: Install Kodi dependencies
+          command: sudo pip install future==0.17.1
 
       - restore_cache:
           key: dependencies-{{ checksum "install-dependencies.sh" }}

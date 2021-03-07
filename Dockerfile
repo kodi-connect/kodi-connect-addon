@@ -11,7 +11,7 @@ RUN apt-get update && \
   mkdir -p $HOME/app && \
   chown -R python:python $HOME
 
-RUN pip install tornado==4.5.3 fuzzywuzzy ngram futures
+RUN pip install tornado==4.5.3 fuzzywuzzy ngram futures future==0.17.1
 RUN pip install mypy black pylint flake8
 
 WORKDIR $HOME/app
