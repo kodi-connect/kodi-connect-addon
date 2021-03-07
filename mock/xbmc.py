@@ -4,6 +4,7 @@ import os
 import time
 import json
 from tornado.httpclient import HTTPClient
+from builtins import str
 
 try:
     from urllib.parse import urlencode
