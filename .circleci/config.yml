@@ -91,7 +91,7 @@ workflows:
   build-python-2.7:
     jobs:
       - build:
-          python_version: 2.7
+          python_version: "2.7"
       - upload_package:
           context: aws
           requires:
@@ -102,7 +102,7 @@ workflows:
   build-python-3.6:
     jobs:
       - build:
-          python_version: 3.6
+          python_version: "3.6"
       - upload_package:
           context: aws
           requires:
