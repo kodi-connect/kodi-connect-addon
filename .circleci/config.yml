@@ -19,7 +19,7 @@ jobs:
 
       - run:
           name: Set PYTHONPATH environment variable
-          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources' >> $BASH_ENV
+          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources:${HOME}/app/tests' >> $BASH_ENV
 
       - run:
           name: Export
