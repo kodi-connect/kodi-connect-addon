@@ -1,7 +1,7 @@
 # XBMC Media Center language file
 # Addon Name: Kodi Connect
 # Addon id: plugin.video.kodiconnect
-# Addon version: <version>
+# Addon version: xversionx
 # Addon Provider: Tomas Kislan
 msgid ""
 msgstr ""

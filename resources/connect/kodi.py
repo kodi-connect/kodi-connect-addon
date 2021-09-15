@@ -42,7 +42,7 @@ def get_current_item():
             'type': item_type,
             'movieid': item['id'],
         }
-    elif item_type == 'episode':
+    if item_type == 'episode':
         return {
             'type': item_type,
             'episodeid': item['id'],

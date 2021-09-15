@@ -1,10 +1,19 @@
 # pylint: disable=print-statement
 
+import base64
 import os
+import sys
 import time
 import json
-import urllib
-from tornado.httpclient import HTTPClient
+from builtins import str
+
+if sys.version_info >= (3,):
+    import urllib.request as urlreq
+    from urllib.parse import urlencode
+else:
+    import urllib2 as urlreq
+    from urllib import urlencode
+
 
 KODI_HOST = os.environ['KODI_HOST']
 LOG_FILE = os.environ.get('LOG_FILE', '/tmp/kodi.log')
@@ -18,12 +27,20 @@ def _kodi_rpc(obj):
 
 def kodi_rpc(request):
     print('[XBMC] Calling kodi rpc')
-    query = urllib.urlencode({ 'request': request })
+    query = urlencode({'request': request})
 
-    http_client = HTTPClient()
-    resp = http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
-    http_client.close()
-    return resp.body
+    # http_client = AsyncHTTPClient()
+    # resp = IOLoop.instance().run_sync(lambda: http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0), 120)
+    # resp = IOLoop.instance().run_in_executor(None, lambda: http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0), 120)
+    # resp = blocking(lambda: http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0))
+    # resp = http_client.fetch(u'{}/jsonrpc?{}'.format(KODI_HOST, query), auth_username='kodi', auth_password='password', connect_timeout=60.0)
+    # http_client.close()
+    # return resp.body
+
+    req = urlreq.Request(u'{}/jsonrpc?{}'.format(KODI_HOST, query))
+    auth_header_value = base64.b64encode(("kodi:password").encode("ascii"))
+    req.add_header("Authorization", "Basic {}".format(auth_header_value.decode("ascii")))
+    return urlreq.urlopen(req).read()
 
 def _get_tvshow_by_episodeid(episodeid):
     res = _kodi_rpc({
@@ -210,6 +227,8 @@ LOGDEBUG = 'LOGDEBUG'
 LOGNOTICE = 'LOGNOTICE'
 
 def log(message, level=LOGDEBUG):
+    if isinstance(message, bytes):
+        message = message.decode('utf-8')
     if not isinstance(message, str):
         raise RuntimeError('message should be of type str')
     print("[{}]: {}".format(level, message))

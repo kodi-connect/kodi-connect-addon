@@ -17,6 +17,7 @@
 
 	"extensions": [
 		"ms-python.python",
+		"ms-python.vscode-pylance",
 		"visualstudioexptteam.vscodeintellicode",
 		"eamodio.gitlens",
 		"github.vscode-pull-request-github"

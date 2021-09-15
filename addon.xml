@@ -4,7 +4,8 @@
        version="xversionx"
        provider-name="Tomas Kislan">
   <requires>
-    <import addon="xbmc.python" version="2.14.0"/>
+    <import addon="xbmc.python" version="xpythonversionx"/>
+    <import addon="script.module.future" version="0.17.1"/>
   </requires>
   <!-- <extension point="xbmc.python.script" library="default.py" /> -->
   <extension point="xbmc.python.pluginsource" library="plugin.py">

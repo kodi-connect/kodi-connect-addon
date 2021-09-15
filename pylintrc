@@ -47,7 +47,7 @@ extension-pkg-whitelist=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=missing-docstring,locally-disabled
+disable=missing-docstring,locally-disabled,redefined-builtin,useless-object-inheritance,use-a-generator,raise-missing-from
 
 
 [REPORTS]

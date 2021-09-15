@@ -5,18 +5,24 @@ orbs:
 
 jobs:
   build:
+    parameters:
+      python_version:
+        type: string
+      python_addon_version:
+        type: string
     docker:
-      - image: circleci/python:2.7
+      - image: circleci/python:<< parameters.python_version >>
       - image: tkislan/kodi-simulator
     environment:
       KODI_HOST: http://localhost:8080
+      PYTHON_ADDON_VERSION: << parameters.python_addon_version >>
     working_directory: ~/app
     steps:
       - checkout
 
       - run:
           name: Set PYTHONPATH environment variable
-          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources' >> $BASH_ENV
+          command: echo 'export PYTHONPATH=${HOME}/app/mock:${HOME}/app/resources/lib:${HOME}/app/resources:${HOME}/app/tests' >> $BASH_ENV
 
       - run:
           name: Export
@@ -25,6 +31,10 @@ jobs:
       - run:
           name: Install Test dependencies
           command: sudo pip install pylint flake8
+      
+      - run:
+          name: Install Kodi dependencies
+          command: sudo pip install future==0.17.1
 
       - restore_cache:
           key: dependencies-{{ checksum "install-dependencies.sh" }}
@@ -64,7 +74,7 @@ jobs:
 
       - run:
           name: Copy package
-          command: cp -v plugin.video.kodiconnect-*.zip /tmp/package
+          command: cp -v packages/${PYTHON_ADDON_VERSION}/plugin.video.kodiconnect-*.zip /tmp/package
 
       - persist_to_workspace:
           root: /tmp/package
@@ -72,6 +82,9 @@ jobs:
             - plugin.video.kodiconnect-*.zip
 
   upload_package:
+    parameters:
+      python_addon_version:
+        type: string
     docker:
       - image: circleci/python:3.7
     steps:
@@ -80,15 +93,31 @@ jobs:
 
       - aws-s3/sync:
           from: /tmp/package
-          to: 's3://kodi-connect/kodi-connect-addon'
+          to: 's3://kodi-connect/kodi-connect-addon/<< parameters.python_addon_version >>'
 
 
 workflows:
   version: 2
-  build:
+  build-python-2.7:
     jobs:
-      - build
+      - build:
+          python_version: "2.7"
+          python_addon_version: "2.14.0"
       - upload_package:
+          python_addon_version: "2.14.0"
+          context: aws
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+  build-python-3.6:
+    jobs:
+      - build:
+          python_version: "3.6"
+          python_addon_version: "3.0.0"
+      - upload_package:
+          python_addon_version: "3.0.0"
           context: aws
           requires:
             - build

@@ -2,7 +2,11 @@
 
 import os
 import sys
-import urlparse
+
+try:
+    from urllib.parse import parse_qs
+except ImportError:
+    from urlparse import parse_qs
 
 import xbmc
 import xbmcgui
@@ -11,7 +15,7 @@ import xbmcaddon
 
 __addon__ = xbmcaddon.Addon()
 __handle__ = int(sys.argv[1])
-__args__ = urlparse.parse_qs(sys.argv[2][1:])
+__args__ = parse_qs(sys.argv[2][1:])
 
 xbmcplugin.setContent(__handle__, 'movies')
 
