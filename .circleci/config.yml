@@ -82,6 +82,9 @@ jobs:
             - plugin.video.kodiconnect-*.zip
 
   upload_package:
+    parameters:
+      python_version:
+        type: string
     docker:
       - image: circleci/python:3.7
     steps:
@@ -90,7 +93,7 @@ jobs:
 
       - aws-s3/sync:
           from: /tmp/package
-          to: 's3://kodi-connect/kodi-connect-addon'
+          to: 's3://kodi-connect/kodi-connect-addon/<< parameters.python_addon_version >>'
 
 
 workflows:
@@ -101,6 +104,7 @@ workflows:
           python_version: "2.7"
           python_addon_version: "2.14.0"
       - upload_package:
+          python_addon_version: "2.14.0"
           context: aws
           requires:
             - build
@@ -113,6 +117,7 @@ workflows:
           python_version: "3.6"
           python_addon_version: "3.0.0"
       - upload_package:
+          python_addon_version: "3.0.0"
           context: aws
           requires:
             - build
