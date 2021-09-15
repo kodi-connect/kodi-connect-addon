@@ -8,11 +8,14 @@ jobs:
     parameters:
       python_version:
         type: string
+      python_addon_version:
+        type: string
     docker:
       - image: circleci/python:<< parameters.python_version >>
       - image: tkislan/kodi-simulator
     environment:
       KODI_HOST: http://localhost:8080
+      PYTHON_ADDON_VERSION: << parameters.python_addon_version >>
     working_directory: ~/app
     steps:
       - checkout
