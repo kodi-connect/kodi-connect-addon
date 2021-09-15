@@ -83,7 +83,7 @@ jobs:
 
   upload_package:
     parameters:
-      python_version:
+      python_addon_version:
         type: string
     docker:
       - image: circleci/python:3.7
