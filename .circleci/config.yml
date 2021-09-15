@@ -99,6 +99,7 @@ workflows:
     jobs:
       - build:
           python_version: "2.7"
+          python_addon_version: "2.14.0"
       - upload_package:
           context: aws
           requires:
@@ -110,6 +111,7 @@ workflows:
     jobs:
       - build:
           python_version: "3.6"
+          python_addon_version: "3.0.0"
       - upload_package:
           context: aws
           requires:
