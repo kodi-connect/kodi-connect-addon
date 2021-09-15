@@ -16,7 +16,7 @@ LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('pat
 sys.path.append(RESOURCES_PATH)
 sys.path.append(LIB_RESOURCES_PATH)
 
-import concurrent
+import concurrent.futures
 from tornado.ioloop import IOLoop
 
 from connect import logger

@@ -2,7 +2,7 @@
 
 import unittest
 
-import concurrent
+import concurrent.futures
 
 class TestHandler(unittest.TestCase):
     def test_concurrent_has_python_exit(self):
