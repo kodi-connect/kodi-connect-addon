@@ -12,7 +12,7 @@ virtualenv "${tmpdir}"
 pushd "${tmpdir}"
 source "${tmpdir}/bin/activate"
 
-pip install tornado==4.5.3 fuzzywuzzy ngram futures
+pip install tornado==5.1.1 fuzzywuzzy ngram==3.3.2 futures
 
 venv_libs=$(file "${tmpdir}/lib/python"*"/site-packages" | cut -d: -f1)
 
