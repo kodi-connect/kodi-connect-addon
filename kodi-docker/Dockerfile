@@ -13,7 +13,7 @@ ENV DISPLAY :0
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN add-apt-repository ppa:team-xbmc/ppa && \
-  apt-get update && \
+  apt-get --allow-releaseinfo-change update && \
   apt-get -y install \
     git-core \
     git \
