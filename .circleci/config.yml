@@ -74,7 +74,7 @@ jobs:
 
       - run:
           name: Copy package
-          command: cp -v plugin.video.kodiconnect-*.zip /tmp/package
+          command: cp -v packages/${PYTHON_ADDON_VERSION}/plugin.video.kodiconnect-*.zip /tmp/package
 
       - persist_to_workspace:
           root: /tmp/package
