@@ -30,7 +30,7 @@ jobs:
 
       - run:
           name: Install Test dependencies
-          command: sudo pip install pylint flake8
+          command: sudo pip install pylint==2.10.2 flake8
       
       - run:
           name: Install Kodi dependencies
@@ -50,7 +50,7 @@ jobs:
 
       - run:
           name: Run Linter
-          command: ./run-linter.sh || true
+          command: ./run-linter.sh
 
       - run:
           name: Wait for kodi simulator
