@@ -30,7 +30,13 @@ jobs:
 
       - run:
           name: Install Test dependencies
-          command: sudo pip install pylint==2.10.2 flake8
+          command: |
+            sudo pip install flake8
+            if test $(python -c 'import sys; print(sys.version_info[0])') -eq 2; then
+              sudo pip install pylint==1.9.5
+            else
+              sudo pip install pylint==2.10.2
+            fi
       
       - run:
           name: Install Kodi dependencies
