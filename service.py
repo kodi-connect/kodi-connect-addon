@@ -19,11 +19,6 @@ sys.path.append(LIB_RESOURCES_PATH)
 import concurrent.futures
 from tornado.ioloop import IOLoop
 
-if sys.version_info >= (3,):
-    import asyncio
-    from tornado.platform.asyncio import AnyThreadEventLoopPolicy
-    asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
-
 from connect import logger
 from connect.only_once import OnlyOnce, OnlyOnceException
 from connect.handler import Handler
@@ -66,6 +61,9 @@ def main():
     """Main function"""
     logger.debug('Starting')
     logger.debug(u'pid={}'.format(os.getpid()))
+
+    main_io_loop = IOLoop(make_current=True)
+    logger.debug(main_io_loop)
 
     try:
         __once__ = OnlyOnce()
