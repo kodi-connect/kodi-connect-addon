@@ -27,10 +27,6 @@ jobs:
       - run:
           name: Export
           command: export
-      
-      - run:
-          name: Pin Python setuptools
-          command: sudo pip install setuptools==57.5.0
 
       - run:
           name: Install Test dependencies

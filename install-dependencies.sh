@@ -12,7 +12,9 @@ virtualenv "${tmpdir}"
 pushd "${tmpdir}"
 source "${tmpdir}/bin/activate"
 
-pip install setuptools==57.5.0
+if test $(python --version | awk '{print $2}' | cut -d. -f1) -eq '3'; then
+    pip install setuptools==57.5.0
+fi
 
 pip install tornado==5.1.1 fuzzywuzzy ngram==3.3.2 futures
 
