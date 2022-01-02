@@ -6,9 +6,9 @@ import logging
 from logging.config import dictConfig
 import xbmc
 import xbmcaddon
-import asyncio
 
 if sys.platform == "win32" and sys.version_info >= (3, 8, 0):
+    import asyncio
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 __addon__ = xbmcaddon.Addon()
