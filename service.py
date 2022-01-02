@@ -8,8 +8,10 @@ import xbmc
 import xbmcaddon
 
 if sys.platform == "win32" and sys.version_info >= (3, 8, 0):
+    # pylint: disable=import-error
     import asyncio
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # pylint: enable=import-error
 
 __addon__ = xbmcaddon.Addon()
 
