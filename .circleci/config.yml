@@ -104,19 +104,19 @@ jobs:
 
 workflows:
   version: 2
-  build-python-2.7:
-    jobs:
-      - build:
-          python_version: "2.7"
-          python_addon_version: "2.14.0"
-      - upload_package:
-          python_addon_version: "2.14.0"
-          context: aws
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
+  # build-python-2.7:
+  #   jobs:
+  #     - build:
+  #         python_version: "2.7"
+  #         python_addon_version: "2.14.0"
+  #     - upload_package:
+  #         python_addon_version: "2.14.0"
+  #         context: aws
+  #         requires:
+  #           - build
+  #         filters:
+  #           branches:
+  #             only: master
   build-python-3.6:
     jobs:
       - build:
