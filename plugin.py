@@ -8,7 +8,7 @@ try:
 except ImportError:
     from urlparse import parse_qs
 
-import xbmc
+import xbmcvfs
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
@@ -19,8 +19,8 @@ __args__ = parse_qs(sys.argv[2][1:])
 
 xbmcplugin.setContent(__handle__, 'movies')
 
-RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
-LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
+RESOURCES_PATH = xbmcvfs.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
+LIB_RESOURCES_PATH = xbmcvfs.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
 sys.path.append(RESOURCES_PATH)
 sys.path.append(LIB_RESOURCES_PATH)
 

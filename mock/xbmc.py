@@ -220,9 +220,6 @@ def executeJSONRPC(request_str):
 def executebuiltin(str):
     print(u'[XBMC] executebuiltin: {}'.format(str))
 
-def translatePath(path):
-    return path
-
 LOGDEBUG = 'LOGDEBUG'
 LOGNOTICE = 'LOGNOTICE'
 

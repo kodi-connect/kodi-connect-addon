@@ -4,15 +4,15 @@ import sys
 import os
 import logging
 from logging.config import dictConfig
-import xbmc
+import xbmcvfs
 import xbmcaddon
 
 __addon__ = xbmcaddon.Addon()
 
 KODI_CONNECT_URL = os.environ.get('KODI_CONNECT_URL', 'wss://kodiconnect.kislan.sk/ws')
 
-RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
-LIB_RESOURCES_PATH = xbmc.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
+RESOURCES_PATH = xbmcvfs.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources'))
+LIB_RESOURCES_PATH = xbmcvfs.translatePath(os.path.join(__addon__.getAddonInfo('path'), 'resources', 'lib'))
 sys.path.append(RESOURCES_PATH)
 sys.path.append(LIB_RESOURCES_PATH)
 
